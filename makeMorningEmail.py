@@ -33,14 +33,13 @@ def getMoonPhaseMessage():
     messages = {13:"Full moon tomorrow!",
                 14:"Full moon today!",
                 15:"Make waxing gibbous message."}
-
     return messages.get(phasenum,"")
 
 def main():
-    email = 'Bitcoin/USD: ' + getBTCprice() + '\n' + 
+    email = ('Bitcoin/USD: ' + getBTCprice() + '\n' + 
             '538 Trump Approval: ' + get538trumpapprove() + '\n' + 
             '10 Year US Treasury Yield: ' + get10yeartreas() + '\n' +
-            getMoonPhaseMessage()
+            getMoonPhaseMessage())
     print(email)
     
 def getRandomLexiMessage():
