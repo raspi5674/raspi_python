@@ -37,11 +37,12 @@ def getMoonPhaseMessage():
     return messages.get(phasenum,"")
 
 def main():
-    print('Bitcoin/USD: ' + getBTCprice() + '\n' + 
-          '538 Trump Approval: ' + get538trumpapprove() + '\n' + 
-          '10 Year US Treasury Yield: ' + get10yeartreas() + '\n' +
-          getMoonPhaseMessage())
-
+    email = 'Bitcoin/USD: ' + getBTCprice() + '\n' + 
+            '538 Trump Approval: ' + get538trumpapprove() + '\n' + 
+            '10 Year US Treasury Yield: ' + get10yeartreas() + '\n' +
+            getMoonPhaseMessage()
+    print(email)
+    
 def getRandomLexiMessage():
     messages = {1:"I love you!",
                 2:"You are my sunshine!",
