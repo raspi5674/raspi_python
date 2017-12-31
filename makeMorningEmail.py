@@ -18,10 +18,12 @@ def get538trumpapprove():
     today = datetime.date.today().strftime('%m%d%Y')
     data = data[data.subgroup == 'All polls']
     trumpapprove = data['approve_estimate'].values[0].round(1)
-    # moving average currently not used
-    mvgavg = data['approve_estimate'].values[0:5]
-    trumpapprove5day = (sum(mvgavg)/len(mvgavg)).round(1)
-    return str(trumpapprove) + "%"
+    
+    # moving average
+    mvgavg = data['approve_estimate'].values[0:7]
+    trumpapproveweek = (sum(mvgavg)/len(mvgavg)).round(1)
+    
+    return str(trumpapprove) + "%", str(trumpapproveweek) + "%"
 
 def get10yeartreas():
     treasury = quandl.get("USTREASURY/YIELD")
@@ -33,15 +35,24 @@ def getMoonPhaseMessage():
     messages = {13:"Full moon tomorrow!",
                 14:"Full moon today!",
                 15:"Make waxing gibbous message."}
-
     return messages.get(phasenum,"")
 
 def main():
-    print('Bitcoin/USD: ' + getBTCprice() + '\n' + 
-          '538 Trump Approval: ' + get538trumpapprove() + '\n' + 
-          '10 Year US Treasury Yield: ' + get10yeartreas() + '\n' +
-          getMoonPhaseMessage())
-
+    b= getBTCprice()
+    a, a2 = get538trumpapprove()
+    t = get10yeartreas()
+    m = getMoonPhaseMessage()
+    
+    if m != "":
+        m = '\n' + m 
+    
+    email = ('Bitcoin/USD: ' + b + '\n' + 
+            '538 Trump Approval: ' + a + " (last week average: " + a2 + ')\n' + 
+            '10 Year US Treasury Yield: ' + t + 
+             m)
+    
+    print(email)
+    
 def getRandomLexiMessage():
     messages = {1:"I love you!",
                 2:"You are my sunshine!",
