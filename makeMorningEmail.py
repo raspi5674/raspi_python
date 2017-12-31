@@ -43,10 +43,14 @@ def main():
     t = get10yeartreas()
     m = getMoonPhaseMessage()
     
+    if m != "":
+        m = '\n' + m 
+    
     email = ('Bitcoin/USD: ' + b + '\n' + 
             '538 Trump Approval: ' + a + '\n' + 
             '10 Year US Treasury Yield: ' + t + 
-             (if m != "":'\n') + m)
+             m)
+    
     print(email)
     
 def getRandomLexiMessage():
