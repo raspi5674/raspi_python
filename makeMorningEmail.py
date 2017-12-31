@@ -1,4 +1,4 @@
-# This code written in Python3
+# This code written in Python 3
 
 import json, requests                     # for BTC price
 from pandas.io.json import json_normalize # for BTC price
@@ -41,7 +41,8 @@ def get538trumpapprove():
 def get10yeartreas():
     treasury = quandl.get("USTREASURY/YIELD")
     tenyeartreas = treasury['10 YR'][len(treasury)-1]
-    return str(tenyeartreas) + "%"
+    yearavg10YT = sum(treasury['10 YR'][len(treasury)-365:len(treasury)].values)/365
+    return str(tenyeartreas) + "%", str(round(yearavg10YT,2)) + "%"
 
 def getMoonPhaseMessage():
     phasenum = Astral.moon_phase(Astral(),datetime.date.today())
@@ -57,7 +58,7 @@ def getMoonPhaseMessage():
 def main():
     b, b2 = getBTCprice()
     a, a2 = get538trumpapprove()
-    t = get10yeartreas()
+    t, t2 = get10yeartreas()
     m = getMoonPhaseMessage()
     
     if m != "":
@@ -65,7 +66,7 @@ def main():
     
     email = ('BTC/USD: ' + b + ' (last mth avg: ' + b2 + ')\n' + 
             '538 Trump Approval: ' + a + " (last wk avg: " + a2 + ')\n' + 
-            '10 Yr UST Yield: ' + t + 
+            '10 Yr UST Yield: ' + t + + " (last yr avg: " + t2 + ')' # \n included in m
              m)
     
     print(email)
