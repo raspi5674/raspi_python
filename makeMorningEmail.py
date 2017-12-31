@@ -45,9 +45,13 @@ def get10yeartreas():
 
 def getMoonPhaseMessage():
     phasenum = Astral.moon_phase(Astral(),datetime.date.today())
-    messages = {13:"Full moon tomorrow!",
-                14:"Full moon today!",
-                15:"Make waxing gibbous message."}
+    # Moon phase numbers: 
+    # 0 = New Moon
+    # 7 = First Quarter
+    # 14 = Full Moon
+    # 21 = Last Quarter
+    messages = {13:"This waxing gibbous is about to go FULL MOON!",
+                14:"Full moon today!"}
     return messages.get(phasenum,"")
 
 def main():
@@ -59,9 +63,9 @@ def main():
     if m != "":
         m = '\n' + m 
     
-    email = ('Bitcoin/USD: ' + b + ' (last month average: ' + b2 + ')\n' + 
-            '538 Trump Approval: ' + a + " (last week average: " + a2 + ')\n' + 
-            '10 Year US Treasury Yield: ' + t + 
+    email = ('BTC/USD: ' + b + ' (last mth avg: ' + b2 + ')\n' + 
+            '538 Trump Approval: ' + a + " (last wk avg: " + a2 + ')\n' + 
+            '10 Yr UST Yield: ' + t + 
              m)
     
     print(email)
