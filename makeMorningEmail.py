@@ -1,17 +1,30 @@
 # This code written in Python3
 
-import json, requests         # for BTC price
-import quandl                 # for treasury yield
-import datetime, pandas as pd # for 538 Trump approve
-from astral import Astral     # For moon phase
-import random                 # For Lexi Messages
+import json, requests                     # for BTC price
+from pandas.io.json import json_normalize # for BTC price
+import quandl, numpy                      # for treasury yield
+import datetime, pandas as pd             # for 538 Trump approve
+from astral import Astral                 # For moon phase
+import random                             # For Lexi Messages
 
 def getBTCprice():
+    # Get price as of this exact moment
     url = requests.get('https://api.coindesk.com/v1/bpi/currentprice/USD.json')
     price = json.loads(url.text)
     BTCprice = float(price['bpi']['USD']['rate'].replace(',',''))
     BTCpriceformatted = '${:,.2f}'.format(BTCprice)
-    return BTCpriceformatted
+    
+    # Get historical close prices and average
+    base_url = 'https://api.coindesk.com/v1/bpi/historical/close.json'
+    today = str(datetime.date.today())
+    monthago = str(datetime.date.today() + datetime.timedelta(-30))
+    dateparam = "?start=" + monthago + "&end=" + today
+    url = requests.get(base_url + dateparam)
+    price = json.loads(url.text)
+    data = numpy.transpose(json_normalize(price['bpi']))
+    BTCmonthavg = sum(data.values[0:len(data)])/len(data)
+    BTCmonthavgformatted = '${:,.2f}'.format(float(BTCmonthavg))
+    return BTCpriceformatted, BTCmonthavgformatted
 
 def get538trumpapprove():
     data = pd.read_csv('https://projects.fivethirtyeight.com/trump-approval-data/approval_topline.csv')
@@ -38,7 +51,7 @@ def getMoonPhaseMessage():
     return messages.get(phasenum,"")
 
 def main():
-    b= getBTCprice()
+    b, b2 = getBTCprice()
     a, a2 = get538trumpapprove()
     t = get10yeartreas()
     m = getMoonPhaseMessage()
@@ -46,7 +59,7 @@ def main():
     if m != "":
         m = '\n' + m 
     
-    email = ('Bitcoin/USD: ' + b + '\n' + 
+    email = ('Bitcoin/USD: ' + b + ' (last month average: ' + b2 + ')\n' + 
             '538 Trump Approval: ' + a + " (last week average: " + a2 + ')\n' + 
             '10 Year US Treasury Yield: ' + t + 
              m)
