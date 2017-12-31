@@ -41,7 +41,7 @@ def get538trumpapprove():
 def get10yeartreas():
     treasury = quandl.get("USTREASURY/YIELD")
     tenyeartreas = treasury['10 YR'][len(treasury)-1]
-    yearavg10YT = sum(treasury['10 YR'][len(treasury)-365:len(treasury)].values)/365
+    yearavg10YT = sum(treasury['10 YR'][-365:len(treasury)].values)/365
     return str(tenyeartreas) + "%", str(round(yearavg10YT,2)) + "%"
 
 def getMoonPhaseMessage():
