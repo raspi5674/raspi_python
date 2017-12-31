@@ -66,7 +66,7 @@ def main():
     
     email = ('BTC/USD: ' + b + ' (last mth avg: ' + b2 + ')\n' + 
             '538 Trump Approval: ' + a + " (last wk avg: " + a2 + ')\n' + 
-            '10 Yr UST Yield: ' + t + + " (last yr avg: " + t2 + ')' # \n included in m
+            '10 Yr UST Yield: ' + t + + " (last yr avg: " + t2 + ')' + # \n included in m
              m)
     
     print(email)
