@@ -47,7 +47,7 @@ def main():
         m = '\n' + m 
     
     email = ('Bitcoin/USD: ' + b + '\n' + 
-            '538 Trump Approval: ' + a + ",  " + a2 + '\n' + 
+            '538 Trump Approval: ' + a + " (last week average: " + a2 + ')\n' + 
             '10 Year US Treasury Yield: ' + t + 
              m)
     
