@@ -5,7 +5,6 @@ from pandas.io.json import json_normalize # for BTC price
 import quandl, numpy                      # for treasury yield
 import datetime, pandas as pd             # for 538 Trump approve
 from astral import Astral                 # For moon phase
-import random                             # For Lexi Messages
 
 def getBTCprice():
     # Get price as of this exact moment
@@ -70,10 +69,4 @@ def main():
              m)
     
     print(email)
-    
-def getRandomLexiMessage():
-    messages = {1:"I love you!",
-                2:"You are my sunshine!",
-                3:"Message 3"}
-    message = messages.get(random.randint(1,len(messages)))
-    return message
+
