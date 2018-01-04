@@ -5,6 +5,7 @@ from pandas.io.json import json_normalize # for BTC price
 import quandl, numpy                      # for treasury yield
 import datetime, pandas as pd             # for 538 Trump approve
 from astral import Astral                 # For moon phase
+import fitbit                             # For weight data
 
 def getBTCprice():
     # Get price as of this exact moment
@@ -53,6 +54,12 @@ def getMoonPhaseMessage():
     messages = {13:"This waxing gibbous is about to go FULL MOON!",
                 14:"Full moon today!"}
     return messages.get(phasenum,"")
+
+def getWeightData():
+    clientID = 'XXXXX'
+    clientSecret = 'XXXXX'
+    unauth_client = fitbit.Fitbit(clientID, clientSecret)
+    return " "
 
 def main():
     b, b2 = getBTCprice()
