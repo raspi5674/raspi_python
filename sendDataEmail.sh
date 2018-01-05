@@ -11,7 +11,7 @@ date +'%Y-%m-%d %H:%M' >> /home/pi/logging/data_email_log.txt
 cat tempMessage.txt >> /home/pi/logging/data_email_log.txt
 
 # Send the email
-cat tempMessage.txt | mail -s "Morning Data" mot5600@yahoo.com
+cat tempMessage.txt | mail -s "Daily Data" mot5600@yahoo.com
 
 # Remove the temp file and go back to the home directory
 rm tempMessage.txt
