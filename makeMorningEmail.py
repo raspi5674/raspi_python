@@ -56,9 +56,24 @@ def getMoonPhaseMessage():
     return messages.get(phasenum,"")
 
 def getWeightData():
-    clientID = 'XXXXX'
-    clientSecret = 'XXXXX'
-    unauth_client = fitbit.Fitbit(clientID, clientSecret)
+    # Get the API keys from where I've stored them locally on the pi
+    fitbit_api_keys = json.load(open("/home/pi/keys/fitbit_api_keys.json"))
+    clientID = fitbit_api_keys['client_id']
+    clientSecret = fitbit_api_eys['client_secret']
+    token = fitbit_api_eys['access_token']
+    refresh_token = fitbit_api_eys['refresh_token']
+    
+    # first bit of code here should use the refresh token to get new tokens
+    
+    # next bit will declare the client, and get data
+    auth_client = fitbit.Fitbit(clientID, clientSecret, access_token=token, refresh_token=refresh_token)
+    weight_data = auth_client.get_bodyweight(period='30d')
+    
+    # last bit will do the moving average calculation and format the message
+    no_obs = len(weight_data['weight'])
+    for i in range(no_obs):
+        weight_array[i] = weight_data['weight'][i]['weight']
+
     return " "
 
 def main():
