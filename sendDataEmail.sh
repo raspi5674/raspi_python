@@ -9,6 +9,7 @@ python3 -c 'import makeDataEmail; makeDataEmail.main()' > tempMessage.txt
 # Log the date/time of the message and add the message to the log
 date +'%Y-%m-%d %H:%M' >> /home/pi/logging/data_email_log.txt
 cat tempMessage.txt >> /home/pi/logging/data_email_log.txt
+echo -en '\n' >> /home/pi/logging/data_email_log.txt
 
 # Send the email
 cat tempMessage.txt | mail -s "Daily Data" mot5600@yahoo.com
