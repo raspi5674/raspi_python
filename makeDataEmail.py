@@ -64,10 +64,10 @@ def getMoonPhaseMessage():
 
 def getWeightData():
     # Get the API keys from where I've stored them locally on the pi
-    fitbit_api_keys = json.load(open("/home/pi/keys/fitbit_api_keys.json"))
+    keys_file = "/home/pi/keys/fitbit_api_keys.json"
+    fitbit_api_keys = json.load(open(keys_file))
     client_id = fitbit_api_keys['client_id']
     client_secret = fitbit_api_keys['client_secret']
-    access_token = fitbit_api_keys['access_token']
     refresh_token = fitbit_api_keys['refresh_token']
     
     # This code refreshes the access token
@@ -78,6 +78,8 @@ def getWeightData():
         fitbit_api_keys['last-refreshed'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         access_token = a
         refresh_token = r
+        with open(keys_file, 'w') as outfile:
+            json.dump(fitbit_api_keys, outfile)
     else: 
         return
     
