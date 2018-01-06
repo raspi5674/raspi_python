@@ -9,7 +9,7 @@ import fitbit, urllib, base64             # For weight data
 
 # Constants and file locations
 LOG_FILE = '/home/pi/logging/data_email_log.txt'
-KEYS_FILE = "/home/pi/keys/fitbit_api_keys.json'
+KEYS_FILE = '/home/pi/keys/fitbit_api_keys.json'
 
 def getBTCprice():
     try: 
