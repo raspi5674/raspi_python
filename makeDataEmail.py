@@ -158,4 +158,4 @@ def main(log_bool=True):
         email_log.write('\n' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M') + '\n' + email + '\n')
         email_log.close()
     
-    print(email)
+    return email
