@@ -80,6 +80,7 @@ def getWeightData():
     
     # last bit will do the moving average calculation and format the message
     no_obs = len(weight_data['weight'])
+    weight_array = []
     for i in range(no_obs):
         weight_array.append(weight_data['weight'][i]['weight'])
     
