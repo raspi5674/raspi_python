@@ -59,9 +59,9 @@ def getWeightData():
     # Get the API keys from where I've stored them locally on the pi
     fitbit_api_keys = json.load(open("/home/pi/keys/fitbit_api_keys.json"))
     clientID = fitbit_api_keys['client_id']
-    clientSecret = fitbit_api_eys['client_secret']
-    token = fitbit_api_eys['access_token']
-    refresh_token = fitbit_api_eys['refresh_token']
+    clientSecret = fitbit_api_keys['client_secret']
+    token = fitbit_api_keys['access_token']
+    refresh_token = fitbit_api_keys['refresh_token']
     
     # first bit of code here should use the refresh token to get new tokens
     
