@@ -113,7 +113,7 @@ def refreshFitbitTokens(client_id, client_secret, refresh_token):
         NewRefreshToken = str(ResponseJSON['refresh_token'])
         refresh_err = False
 
-    except urllib2.URLError as e:
+    except urllib.error.URLError as e:
         # Getting to this part of the code means we got an error
         # print e.code
         # print e.read()
