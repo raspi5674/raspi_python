@@ -4,7 +4,7 @@
 cd ~/raspi_python
 
 # Call the python to generate the text of the email and store it in a temp file
-python3 -c 'import makeDataEmail; makeDataEmail.main()' > tempMessage.txt
+python3 -c 'import makeDataEmail; print(makeDataEmail.main())' > tempMessage.txt
 
 # THIS CODE NOW DONE IN PYTHON
 # Log the date/time of the message and add the message to the log
