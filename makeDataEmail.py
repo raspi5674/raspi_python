@@ -7,6 +7,10 @@ import datetime, pandas as pd             # for 538 Trump approve
 from astral import Astral                 # For moon phase
 import fitbit, urllib, base64             # For weight data
 
+# Constants and file locations
+LOG_FILE = '/home/pi/logging/data_email_log.txt'
+KEYS_FILE = "/home/pi/keys/fitbit_api_keys.json'
+
 def getBTCprice():
     try: 
         # Get price as of this exact moment
@@ -64,8 +68,7 @@ def getMoonPhaseMessage():
 
 def getWeightData():
     # Get the API keys from where I've stored them locally on the pi
-    keys_file = "/home/pi/keys/fitbit_api_keys.json"
-    fitbit_api_keys = json.load(open(keys_file))
+    fitbit_api_keys = json.load(open(KEYS_FILE))
     client_id = fitbit_api_keys['client_id']
     client_secret = fitbit_api_keys['client_secret']
     refresh_token = fitbit_api_keys['refresh_token']
@@ -78,10 +81,10 @@ def getWeightData():
         fitbit_api_keys['last-refreshed'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         access_token = a
         refresh_token = r
-        with open(keys_file, 'w') as outfile:
+        with open(KEYS_FILE, 'w') as outfile:
             json.dump(fitbit_api_keys, outfile)
     else: 
-        return
+        return "Error with weight data."
     
     # next bit will declare the client, and get data
     auth_client = fitbit.Fitbit(client_id, client_secret, access_token=access_token, refresh_token=refresh_token)
@@ -95,7 +98,8 @@ def getWeightData():
     
     weight_avg = round(sum(weight_array)/len(weight_array),1)
     weight_array.clear()
-    return weight_avg
+    weight_message = "30 day mvg avg weight: " + str(weight_avg)
+    return weight_message
 
 def refreshFitbitTokens(client_id, client_secret, refresh_token):
     TokenURL = 'https://api.fitbit.com/oauth2/token'
@@ -114,7 +118,7 @@ def refreshFitbitTokens(client_id, client_secret, refresh_token):
         #See what we got back.  If it's this part of  the code it was OK
         FullResponse = tokenresponse.read()
 
-        #Need to pick out the access token and write it to the config file.  Use a JSON manipluation module
+        #Need to pick out the tokens and return them
         ResponseJSON = json.loads(FullResponse.decode('utf-8'))
 
         #Read the access token as a string
@@ -126,28 +130,33 @@ def refreshFitbitTokens(client_id, client_secret, refresh_token):
         # Getting to this part of the code means we got an error
         # print(e.code)
         # print(e.read())
-        print('Error in getting new Fitbit access tokens.')
+        # print('Error in getting new Fitbit access tokens.')
         NewAccessToken = ''
         NewRefreshToken = ''
         refresh_err = True
         
     return refresh_err, NewAccessToken, NewRefreshToken
         
-def main():
+def main(log_bool=True):
     b = getBTCprice()
-
     a, a2 = get538trumpapprove()
     t, t2 = get10yeartreas()
     m = getMoonPhaseMessage()
+    w = getWeightData()
     
     if m != "":
         m = '\n' + m 
     
-
     email = (b + '\n' + 
             '538 Trump Approval: ' + a + " (last wk avg: " + a2 + ')\n' + 
-            '10 Yr UST Yield: ' + t + " (last yr avg: " + t2 + ')' + # \n included in m
+            '10 Yr UST Yield: ' + t + " (last yr avg: " + t2 + ')' + '\n' + 
+             w + # \n included in m
              m)
+    
+    if log_bool:
+        email_log = open(LOG_FILE, "a")
+        email_log.write('\n' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M') + '\n' + email + '\n'
+        email_log.close()
     
     print(email)
 
