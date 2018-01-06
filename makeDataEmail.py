@@ -8,23 +8,30 @@ from astral import Astral                 # For moon phase
 import fitbit, urllib, base64             # For weight data
 
 def getBTCprice():
-    # Get price as of this exact moment
-    url = requests.get('https://api.coindesk.com/v1/bpi/currentprice/USD.json')
-    price = json.loads(url.text)
-    BTCprice = float(price['bpi']['USD']['rate'].replace(',',''))
-    BTCpriceformatted = '${:,.2f}'.format(BTCprice)
+    try: 
+        # Get price as of this exact moment
+        url = requests.get('https://api.coindesk.com/v1/bpi/currentprice/USD.json')
+        price = json.loads(url.text)
+        BTCprice = float(price['bpi']['USD']['rate'].replace(',',''))
+        BTCpriceformatted = '${:,.2f}'.format(BTCprice)
+
+        # Get historical close prices and average
+        base_url = 'https://api.coindesk.com/v1/bpi/historical/close.json'
+        today = str(datetime.date.today())
+        monthago = str(datetime.date.today() + datetime.timedelta(-30))
+        dateparam = "?start=" + monthago + "&end=" + today
+        url = requests.get(base_url + dateparam)
+        price = json.loads(url.text)
+        data = numpy.transpose(json_normalize(price['bpi']))
+        BTCmonthavg = sum(data.values[0:len(data)])/len(data)
+        BTCmonthavgformatted = '${:,.2f}'.format(float(BTCmonthavg))
+        
+        btcMessage = 'BTC/USD: ' + BTCpriceformatted + ' (last mth avg: ' + BTCmonthavgformatted + ')'
+        
+    except:
+        btcMessage = 'Unable to retreive BTC information.'
     
-    # Get historical close prices and average
-    base_url = 'https://api.coindesk.com/v1/bpi/historical/close.json'
-    today = str(datetime.date.today())
-    monthago = str(datetime.date.today() + datetime.timedelta(-30))
-    dateparam = "?start=" + monthago + "&end=" + today
-    url = requests.get(base_url + dateparam)
-    price = json.loads(url.text)
-    data = numpy.transpose(json_normalize(price['bpi']))
-    BTCmonthavg = sum(data.values[0:len(data)])/len(data)
-    BTCmonthavgformatted = '${:,.2f}'.format(float(BTCmonthavg))
-    return BTCpriceformatted, BTCmonthavgformatted
+    return btcMessage
 
 def get538trumpapprove():
     data = pd.read_csv('https://projects.fivethirtyeight.com/trump-approval-data/approval_topline.csv')
@@ -115,17 +122,18 @@ def refreshFitbitTokens(client_id, client_secret, refresh_token):
 
     except urllib.error.URLError as e:
         # Getting to this part of the code means we got an error
-        # print e.code
-        # print e.read()
+        # print(e.code)
+        # print(e.read())
+        print('Error in getting new Fitbit access tokens.')
         NewAccessToken = ''
         NewRefreshToken = ''
         refresh_err = True
         
     return refresh_err, NewAccessToken, NewRefreshToken
         
-    
 def main():
-    b, b2 = getBTCprice()
+    b = getBTCprice()
+
     a, a2 = get538trumpapprove()
     t, t2 = get10yeartreas()
     m = getMoonPhaseMessage()
@@ -133,7 +141,8 @@ def main():
     if m != "":
         m = '\n' + m 
     
-    email = ('BTC/USD: ' + b + ' (last mth avg: ' + b2 + ')\n' + 
+
+    email = (b + '\n' + 
             '538 Trump Approval: ' + a + " (last wk avg: " + a2 + ')\n' + 
             '10 Yr UST Yield: ' + t + " (last yr avg: " + t2 + ')' + # \n included in m
              m)
