@@ -5,7 +5,7 @@ from pandas.io.json import json_normalize # for BTC price
 import quandl, numpy                      # for treasury yield
 import datetime, pandas as pd             # for 538 Trump approve
 from astral import Astral                 # For moon phase
-import fitbit                             # For weight data
+import fitbit, urllib, base64             # For weight data
 
 def getBTCprice():
     # Get price as of this exact moment
@@ -75,6 +75,16 @@ def getWeightData():
         weight_array[i] = weight_data['weight'][i]['weight']
 
     return " "
+
+def getNewFitbitAccessToken(clientID, clientSecret, refresh_tokey):
+    TokenURL = "https://api.fitbit.com/oauth2/token"
+    BodyText = {'grant_type':'refresh_token',
+                'refresh_token':refresh_tokey}
+    BodyURLEncoded = urllib.parse.urlencode(BodyText)
+    tokenreq = urllib2.request.Request(TokenURL,BodyURLEncoded)
+    
+    # This next line isn't quite working as expected...
+    tokenreq.add_header('Authorization', 'Basic ' + base64.b64encode(clientID + ":" + clientSecret))
 
 def main():
     b, b2 = getBTCprice()
