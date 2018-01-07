@@ -67,24 +67,19 @@ def getMoonPhaseMessage():
     return messages.get(phasenum,"")
 
 def getWeightData():
-    # Get the API keys from where I've stored them locally on the pi
+    # This code refreshes the access token
+    refresh_err = refreshFitbitTokens(KEYS_FILE)
+    
+    # If the refresh failed, return an error message
+    if refresh_err: 
+        return "Error with weight data."
+    
+    # Load the updated API information
     fitbit_api_keys = json.load(open(KEYS_FILE))
     client_id = fitbit_api_keys['client_id']
     client_secret = fitbit_api_keys['client_secret']
+    access_token = fitbit_api_keys['access_token']
     refresh_token = fitbit_api_keys['refresh_token']
-    
-    # This code refreshes the access token
-    refresh_err, a, r = refreshFitbitTokens(client_id, client_secret, refresh_token)
-    if not refresh_err:
-        fitbit_api_keys['access_token'] = a
-        fitbit_api_keys['refresh_token'] = r
-        fitbit_api_keys['last-refreshed'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        access_token = a
-        refresh_token = r
-        with open(KEYS_FILE, 'w') as outfile:
-            json.dump(fitbit_api_keys, outfile)
-    else: 
-        return "Error with weight data."
     
     # next bit will declare the client, and get data
     auth_client = fitbit.Fitbit(client_id, client_secret, access_token=access_token, refresh_token=refresh_token)
@@ -101,41 +96,54 @@ def getWeightData():
     weight_message = "30 day mvg avg weight: " + str(weight_avg)
     return weight_message
 
-def refreshFitbitTokens(client_id, client_secret, refresh_token):
+def refreshFitbitTokens(json_keys_file):
+    # Open the json file with the API keys, and load the data that we need
+    fitbit_api_keys = json.load(open(json_keys_file))
+    client_id = fitbit_api_keys['client_id']
+    client_secret = fitbit_api_keys['client_secret']
+    refresh_token = fitbit_api_keys['refresh_token']
+    
+    # Set up the body of the http request
     TokenURL = 'https://api.fitbit.com/oauth2/token'
     BodyText = {'grant_type':'refresh_token',
                 'refresh_token':refresh_token}
     BodyURLEncoded = urllib.parse.urlencode(BodyText).encode('utf-8')
+    
+    # Create a http request with the given URL, and that data package
     tokenreq = urllib.request.Request(TokenURL,BodyURLEncoded)
     
-    # IT WORKS NOW.  DEAR LORD YES
+    # Add headers to the http request 
     tokenreq.add_header('Authorization', 'Basic ' + base64.b64encode(bytes(client_id + ":" + client_secret, 'utf-8')).decode('utf-8'))
     tokenreq.add_header('Content-Type', 'application/x-www-form-urlencoded')
     
     try:
+        # Fire off the http request
         tokenresponse = urllib.request.urlopen(tokenreq)
-
-        #See what we got back.  If it's this part of  the code it was OK
+        
+        # See what we got back.  If it's this part of  the code it was OK
         FullResponse = tokenresponse.read()
-
-        #Need to pick out the tokens and return them
+        
+        # Need to pick out the tokens and return them
         ResponseJSON = json.loads(FullResponse.decode('utf-8'))
-
-        #Read the access token as a string
-        NewAccessToken = str(ResponseJSON['access_token'])
-        NewRefreshToken = str(ResponseJSON['refresh_token'])
+        
+        # Put the keys into the json file
+        fitbit_api_keys['access_token'] = str(ResponseJSON['access_token'])
+        fitbit_api_keys['refresh_token'] = str(ResponseJSON['refresh_token'])
+        fitbit_api_keys['last-refreshed'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        
+        # Update the actual file 
+        with open(KEYS_FILE, 'w') as outfile:
+            json.dump(fitbit_api_keys, outfile)
+        
         refresh_err = False
-
     except urllib.error.URLError as e:
         # Getting to this part of the code means we got an error
         # print(e.code)
         # print(e.read())
         # print('Error in getting new Fitbit access tokens.')
-        NewAccessToken = ''
-        NewRefreshToken = ''
         refresh_err = True
         
-    return refresh_err, NewAccessToken, NewRefreshToken
+    return refresh_err
         
 def main(log_bool=True):
     b = getBTCprice()
