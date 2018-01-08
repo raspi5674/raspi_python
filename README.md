@@ -1,2 +1,2 @@
 # raspi_python
-Python and other code for raspberry pi
+This code will pull data from several sources and compile it into a text string that is returned from main().  
