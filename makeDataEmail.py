@@ -94,8 +94,8 @@ def getWeightData():
     weight_avg = round(sum(weight_array)/len(weight_array),1)
     weight_array.clear()
     weight_message = "30 day mvg avg weight: " + str(weight_avg)
-    most_recent_weight = weight_array['weight'][-1]['weight']
-    most_recent_weight_date = weight_array['weight'][-1]['date']
+    #most_recent_weight = weight_array['weight'][-1]['weight']
+    #most_recent_weight_date = weight_array['weight'][-1]['date']
     return weight_message
 
 def refreshFitbitTokens(json_keys_file):
