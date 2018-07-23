@@ -69,7 +69,26 @@ def getMoonPhaseMessage():
     return messages.get(phasenum,"")
 
 def getWeightData():
+    conn = sqlite3.connect(DB_DIR)
+    cur = conn.cursor()
     
+    monthago = datetime.date.today() + datetime.timedelta(days=30)
+    monthago = monthago.strftime("%Y-%m-%d")
+    # https://sqlite.org/lang_datefunc.html
+    # Use the above to figure out this date comparison
+    cur.execute("SELECT * FROM weight WHERE julianday(date)>=julianday('%s');" % (monthago))
+    weightdata = cur.fetchall()
+    
+    # FILL CODE HERE TO INTERPOLATE AND FILL OUT WEIGHT DATA.
+    # This code below is from the original
+    weight_avg = round(sum(weight_array)/len(weight_array),1)
+    weight_array.clear()
+    weight_message = "30 day mvg avg weight: " + str(weight_avg)
+    #most_recent_weight = weight_array['weight'][-1]['weight']
+    #most_recent_weight_date = weight_array['weight'][-1]['date']
+    return weight_message
+
+
 def updateWeightDatabase():
     # This code refreshes the access token
     refresh_err = refreshFitbitTokens(KEYS_FILE)
@@ -110,13 +129,6 @@ def updateWeightDatabase():
     conn.commit()
     cur.close()
     conn.close()
-    
-    weight_avg = round(sum(weight_array)/len(weight_array),1)
-    weight_array.clear()
-    weight_message = "30 day mvg avg weight: " + str(weight_avg)
-    #most_recent_weight = weight_array['weight'][-1]['weight']
-    #most_recent_weight_date = weight_array['weight'][-1]['date']
-    return weight_message
 
 def refreshFitbitTokens(json_keys_file):
     # Open the json file with the API keys, and load the data that we need
@@ -168,6 +180,9 @@ def refreshFitbitTokens(json_keys_file):
     return refresh_err
         
 def main(log_bool=True):
+    
+    updateWeightDatabase()
+    
     b = getBTCprice()
     a, a2 = get538trumpapprove()
     t, t2 = get10yeartreas()
