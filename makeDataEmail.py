@@ -72,20 +72,18 @@ def getWeightData():
     conn = sqlite3.connect(DB_DIR)
     cur = conn.cursor()
     
-    monthago = datetime.date.today() + datetime.timedelta(days=30)
-    monthago = monthago.strftime("%Y-%m-%d")
-    # https://sqlite.org/lang_datefunc.html
-    # Use the above to figure out this date comparison
-    cur.execute("SELECT * FROM weight WHERE julianday(date)>=julianday('%s');" % (monthago))
+    monthago = datetime.date.today() + datetime.timedelta(days=-30)
+    monthago_string = monthago.strftime("%Y-%m-%d")
+    cur.execute("SELECT * FROM weight WHERE julianday(date)>=julianday('%s');" % (monthago_string))
     weightdata = cur.fetchall()
+    weight_tuple = list(zip(*weightdata))[1]
+    conn.commit()
+    cur.close()
+    conn.close()
     
-    # FILL CODE HERE TO INTERPOLATE AND FILL OUT WEIGHT DATA.
-    # This code below is from the original
-    weight_avg = round(sum(weight_array)/len(weight_array),1)
-    weight_array.clear()
+    weight_avg = round(sum(weight_tuple)/len(weight_tuple),1)
     weight_message = "30 day mvg avg weight: " + str(weight_avg)
-    #most_recent_weight = weight_array['weight'][-1]['weight']
-    #most_recent_weight_date = weight_array['weight'][-1]['date']
+    
     return weight_message
 
 
