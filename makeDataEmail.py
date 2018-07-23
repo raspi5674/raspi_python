@@ -69,6 +69,25 @@ def getMoonPhaseMessage():
     return messages.get(phasenum,"")
 
 def getWeightData():
+    conn = sqlite3.connect(DB_DIR)
+    cur = conn.cursor()
+    
+    monthago = datetime.date.today() + datetime.timedelta(days=-30)
+    monthago_string = monthago.strftime("%Y-%m-%d")
+    cur.execute("SELECT * FROM weight WHERE julianday(date)>=julianday('%s');" % (monthago_string))
+    weightdata = cur.fetchall()
+    weight_tuple = list(zip(*weightdata))[1]
+    conn.commit()
+    cur.close()
+    conn.close()
+    
+    weight_avg = round(sum(weight_tuple)/len(weight_tuple),1)
+    weight_message = "30 day mvg avg weight: " + str(weight_avg)
+    
+    return weight_message
+
+
+def updateWeightDatabase():
     # This code refreshes the access token
     refresh_err = refreshFitbitTokens(KEYS_FILE)
     
@@ -84,37 +103,31 @@ def getWeightData():
     refresh_token = fitbit_api_keys['refresh_token']
     
     # next bit will declare the client, and get data
+    # get_bodyweight returns weight and body fat data
     auth_client = fitbit.Fitbit(client_id, client_secret, access_token=access_token, refresh_token=refresh_token)
-    weight_data = auth_client.get_bodyweight(period='30d')
-    bf_data = auth_client.get_bodyfat(period='30d')
-    
-    # last bit will do the moving average calculation and format the message
-    no_obs = len(weight_data['weight'])
-    weight_array = []
-    date_array= []
-    for i in range(no_obs):
-        date_array.append(weight_data['weight'][i]['date'])
-        weight_array.append(weight_data['weight'][i]['weight'])
-        # ADD IN BODYFAT SHIT HERE.
+    weight_data = auth_client.get_bodyweight(period='30d')['weight']
     
     # UPDATE THE WEIGHT DATABASE
     conn = sqlite3.connect(DB_DIR)
     cur = conn.cursor()
-    for i in range(len(date_array)):
-       # cur.execute('SELECT * FROM weight WHERE date="%s";' % (date_array[i]))
-       # db_data = cur.fetchall()
-       cur.execute("INSERT OR IGNORE INTO weight VALUES ('%s',%s,NULL);" % (date_array[i], weight_array[i]))
-       # NEED BODYFAT STUFF HERE   
+    
+    for i in range(len(weight_data)):
+       dt = weight_data[i]['date']
+       if 'weight' not in weight_data[i]:
+          wt = 'NULL'
+       else:
+          wt = round(weight_data[i]['weight'],1)
+
+       if 'fat' not in weight_data[i]:
+          bf = 'NULL'
+       else:
+          bf = round(weight_data[i]['fat'],1)
+
+       cur.execute("UPDATE weight SET weight=%s, bf_pcnt=%s WHERE date='%s';" % (wt,bf,dt))
+
     conn.commit()
     cur.close()
     conn.close()
-    
-    weight_avg = round(sum(weight_array)/len(weight_array),1)
-    weight_array.clear()
-    weight_message = "30 day mvg avg weight: " + str(weight_avg)
-    #most_recent_weight = weight_array['weight'][-1]['weight']
-    #most_recent_weight_date = weight_array['weight'][-1]['date']
-    return weight_message
 
 def refreshFitbitTokens(json_keys_file):
     # Open the json file with the API keys, and load the data that we need
@@ -166,6 +179,9 @@ def refreshFitbitTokens(json_keys_file):
     return refresh_err
         
 def main(log_bool=True):
+    
+    updateWeightDatabase()
+    
     b = getBTCprice()
     a, a2 = get538trumpapprove()
     t, t2 = get10yeartreas()
