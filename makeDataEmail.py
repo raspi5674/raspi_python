@@ -69,6 +69,8 @@ def getMoonPhaseMessage():
     return messages.get(phasenum,"")
 
 def getWeightData():
+    
+def updateWeightDatabase():
     # This code refreshes the access token
     refresh_err = refreshFitbitTokens(KEYS_FILE)
     
