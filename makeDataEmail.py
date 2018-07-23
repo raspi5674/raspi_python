@@ -6,10 +6,12 @@ import quandl, numpy                      # for treasury yield
 import datetime, pandas as pd             # for 538 Trump approve
 from astral import Astral                 # For moon phase
 import fitbit, urllib, base64             # For weight data
+import sqlite3                            # For weight database connection
 
 # Constants and file locations
 LOG_FILE = '/home/pi/logging/data_email_log.txt'
 KEYS_FILE = '/home/pi/keys/fitbit_api_keys.json'
+DB_DIR = '/home/pi/health.db'
 
 def getBTCprice():
     try: 
@@ -84,12 +86,28 @@ def getWeightData():
     # next bit will declare the client, and get data
     auth_client = fitbit.Fitbit(client_id, client_secret, access_token=access_token, refresh_token=refresh_token)
     weight_data = auth_client.get_bodyweight(period='30d')
+    bf_data = auth_client.get_bodyfat(period='30d')
     
     # last bit will do the moving average calculation and format the message
     no_obs = len(weight_data['weight'])
     weight_array = []
+    date_array= []
     for i in range(no_obs):
+        date_array.append(weight_data['weight'][i]['date'])
         weight_array.append(weight_data['weight'][i]['weight'])
+        # ADD IN BODYFAT SHIT HERE.
+    
+    # UPDATE THE WEIGHT DATABASE
+    conn = sqlite3.connect(DB_DIR)
+    cur = conn.cursor()
+    for i in range(len(date_array)):
+       # cur.execute('SELECT * FROM weight WHERE date="%s";' % (date_array[i]))
+       # db_data = cur.fetchall()
+       cur.execute("INSERT OR IGNORE INTO weight VALUES ('%s',%s,NULL);" % (date_array[i], weight_array[i]))
+       # NEED BODYFAT STUFF HERE   
+    conn.commit()
+    cur.close()
+    conn.close()
     
     weight_avg = round(sum(weight_array)/len(weight_array),1)
     weight_array.clear()
