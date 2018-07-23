@@ -103,27 +103,28 @@ def updateWeightDatabase():
     refresh_token = fitbit_api_keys['refresh_token']
     
     # next bit will declare the client, and get data
+    # get_bodyweight returns weight and body fat data
     auth_client = fitbit.Fitbit(client_id, client_secret, access_token=access_token, refresh_token=refresh_token)
-    weight_data = auth_client.get_bodyweight(period='30d')
-    bf_data = auth_client.get_bodyfat(period='30d')
-    
-    # last bit will do the moving average calculation and format the message
-    no_obs = len(weight_data['weight'])
-    weight_array = []
-    date_array= []
-    for i in range(no_obs):
-        date_array.append(weight_data['weight'][i]['date'])
-        weight_array.append(weight_data['weight'][i]['weight'])
-        # ADD IN BODYFAT SHIT HERE.
+    weight_data = auth_client.get_bodyweight(period='30d')['weight']
     
     # UPDATE THE WEIGHT DATABASE
     conn = sqlite3.connect(DB_DIR)
     cur = conn.cursor()
-    for i in range(len(date_array)):
-       # cur.execute('SELECT * FROM weight WHERE date="%s";' % (date_array[i]))
-       # db_data = cur.fetchall()
-       cur.execute("INSERT OR IGNORE INTO weight VALUES ('%s',%s,NULL);" % (date_array[i], weight_array[i]))
-       # NEED BODYFAT STUFF HERE   
+    
+    for i in range(len(weight_data)):
+       dt = weight_data[i]['date']
+       if 'weight' not in weight_data[i]:
+          wt = 'NULL'
+       else:
+          wt = round(weight_data[i]['weight'],1)
+
+       if 'fat' not in weight_data[i]:
+          bf = 'NULL'
+       else:
+          bf = round(weight_data[i]['fat'],1)
+
+       cur.execute("UPDATE weight SET weight=%s, bf_pcnt=%s WHERE date='%s';" % (wt,bf,dt))
+
     conn.commit()
     cur.close()
     conn.close()
