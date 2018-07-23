@@ -2,7 +2,6 @@
 
 # SQLITE CODE TO SET UP HEALTH TABLE:
 # CREATE TABLE "weight" ( date TEXT PRIMARY KEY, weight REAL, bf_pcnt REAL );
-# 
 
 import sqlite3
 import pandas as pd
