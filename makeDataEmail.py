@@ -124,6 +124,9 @@ def getWeightData():
                bf = NaN
             else:
                bf = round(weight_data[k]['fat'],1)
+        else:
+            wt = NaN
+            bf = NaN
         weights.append((dt,wt,bf))
     
     return weight_message
