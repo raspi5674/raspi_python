@@ -112,8 +112,10 @@ def getWeightData():
     weights = []
     datelist = [j[0] for j in weightdata]
     for i in range(30):
+        print(i, dt)
         dt = (datetime.date.today()-datetime.timedelta(days=-i)).strftime("%Y-%m-%d")
         if dt in datelist:
+            print("Found ", dt)
             k = datelist.index(dt)
             if 'weight' not in weight_data[k]:
                wt = float('NaN')
@@ -125,13 +127,13 @@ def getWeightData():
             else:
                bf = round(weight_data[k]['fat'],1)
         else:
+            print("Not found ",dt)
             wt = float('NaN')
             bf = float('NaN')
         weights.append((dt,wt,bf))
         
-        print(weights)
     
-    return weight_message
+    return weights
 
 
 def updateWeightDatabase():
