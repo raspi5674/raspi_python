@@ -116,17 +116,17 @@ def getWeightData():
         if dt in datelist:
             k = datelist.index(dt)
             if 'weight' not in weight_data[k]:
-               wt = NaN
+               wt = float('NaN')
             else:
                wt = round(weight_data[k]['weight'],1)
         
             if 'fat' not in weight_data[k]:
-               bf = NaN
+               bf = float('NaN')
             else:
                bf = round(weight_data[k]['fat'],1)
         else:
-            wt = NaN
-            bf = NaN
+            wt = float('NaN')
+            bf = float('NaN')
         weights.append((dt,wt,bf))
     
     return weight_message
