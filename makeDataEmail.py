@@ -112,8 +112,8 @@ def getWeightData():
     weights = []
     datelist = [j[0] for j in weightdata]
     for i in range(30):
-        print(i, dt)
         dt = (datetime.date.today()-datetime.timedelta(days=-i)).strftime("%Y-%m-%d")
+        print(i, dt)
         if dt in datelist:
             print("Found ", dt)
             k = datelist.index(dt)
