@@ -13,6 +13,32 @@ LOG_FILE = '/home/pi/logging/data_email_log.txt'
 KEYS_FILE = '/home/pi/keys/fitbit_api_keys.json'
 DB_DIR = '/home/pi/health.db'
 
+def main(log_bool=True):
+    
+    updateWeightDatabase()
+    
+    b = getBTCprice()
+    a, a2 = get538trumpapprove()
+    t, t2 = get10yeartreas()
+    w = getWeightData()
+    m = getMoonPhaseMessage()
+    
+    if m != "":
+        m = '\n' + m 
+    
+    email = (b + '\n' + 
+            '538 Trump Approval: ' + a + " (last wk avg: " + a2 + ')\n' + 
+            '10 Yr UST Yield: ' + t + " (last yr avg: " + t2 + ')' + '\n' + 
+             w + # \n included in m
+             m)
+    
+    if log_bool:
+        email_log = open(LOG_FILE, "a")
+        email_log.write('\n' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M') + '\n' + email + '\n')
+        email_log.close()
+    
+    return email
+
 def getBTCprice():
     try: 
         # Get price as of this exact moment
@@ -77,12 +103,28 @@ def getWeightData():
     cur.execute("SELECT * FROM weight WHERE julianday(date)>=julianday('%s');" % (monthago_string))
     weightdata = cur.fetchall()
     weight_tuple = list(zip(*weightdata))[1]
-    conn.commit()
     cur.close()
     conn.close()
     
     weight_avg = round(sum(weight_tuple)/len(weight_tuple),1)
     weight_message = "30 day mvg avg weight: " + str(weight_avg)
+    
+    weights = []
+    datelist = [j[0] for j in weightdata]
+    for i in range(30):
+        dt = (datetime.date.today()-datetime.timedelta(days=-i)).strftime("%Y-%m-%d")
+        if dt in datelist:
+            k = datelist.index(dt)
+            if 'weight' not in weight_data[k]:
+               wt = NaN
+            else:
+               wt = round(weight_data[k]['weight'],1)
+        
+            if 'fat' not in weight_data[k]:
+               bf = NaN
+            else:
+               bf = round(weight_data[k]['fat'],1)
+        weights.append((dt,wt,bf))
     
     return weight_message
 
@@ -177,29 +219,3 @@ def refreshFitbitTokens(json_keys_file):
         refresh_err = True
         
     return refresh_err
-        
-def main(log_bool=True):
-    
-    updateWeightDatabase()
-    
-    b = getBTCprice()
-    a, a2 = get538trumpapprove()
-    t, t2 = get10yeartreas()
-    m = getMoonPhaseMessage()
-    w = getWeightData()
-    
-    if m != "":
-        m = '\n' + m 
-    
-    email = (b + '\n' + 
-            '538 Trump Approval: ' + a + " (last wk avg: " + a2 + ')\n' + 
-            '10 Yr UST Yield: ' + t + " (last yr avg: " + t2 + ')' + '\n' + 
-             w + # \n included in m
-             m)
-    
-    if log_bool:
-        email_log = open(LOG_FILE, "a")
-        email_log.write('\n' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M') + '\n' + email + '\n')
-        email_log.close()
-    
-    return email
