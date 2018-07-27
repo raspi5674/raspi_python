@@ -111,6 +111,7 @@ def getWeightData():
     
     weights = []
     datelist = [j[0] for j in weightdata]
+    print(datelist)
     for i in range(30):
         dt = (datetime.date.today()-datetime.timedelta(days=-i)).strftime("%Y-%m-%d")
         print(i, dt)
