@@ -128,6 +128,8 @@ def getWeightData():
             wt = float('NaN')
             bf = float('NaN')
         weights.append((dt,wt,bf))
+        
+        print(weights)
     
     return weight_message
 
