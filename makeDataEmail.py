@@ -111,21 +111,19 @@ def getWeightData():
     
     weights = []
     datelist = [j[0] for j in weightdata]
-    print(datelist)
+
     for i in range(30):
         dt = (datetime.date.today()-datetime.timedelta(days=i)).strftime("%Y-%m-%d")
-        print(i, dt)
         if dt in datelist:
-            print("Found ", dt)
             k = datelist.index(dt)
             wt = weightdata[k][1]
             bf = weightdata[k][2]
         else:
-            print("Not found ",dt)
             wt = None
             bf = None
         weights.append((dt,wt,bf))
-        
+    # Weights now is an array with the last 30 days and with the known weights filled in
+    # Insert code here to do the interpolation and make graphs
     
     return weights
 
