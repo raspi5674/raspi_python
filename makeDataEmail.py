@@ -127,7 +127,7 @@ def updateWeightDatabase():
        cur.execute("UPDATE weight SET weight=%s, bf_pcnt=%s WHERE date='%s';" % (wt,bf,dt))
        cur.execute("SELECT * FROM weight WHERE date='%s';" % (dt))
        if len(cur.fetchall()) == 0:
-          cur.execute("INSERT INTO weight VALUES ('%s',%s,%s);" % (wt,bf,dt))
+          cur.execute("INSERT INTO weight VALUES ('%s',%s,%s);" % (dt,wt,bf))
        
        
        # NEW TEST UPSERT CODE
