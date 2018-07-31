@@ -112,7 +112,7 @@ def getWeightData():
     weights = []
     datelist = [j[0] for j in weightdata]
 
-    for i in range(interp_days,-1,-1):
+    for i in range(interp_days-1,-1,-1):
         dt = (datetime.date.today()-datetime.timedelta(days=i)).strftime("%Y-%m-%d")
         if dt in datelist:
             k = datelist.index(dt)
@@ -124,8 +124,14 @@ def getWeightData():
             bf = None
             interp = 1
         weights.append((dt,wt,bf,interp))
-    # Weights now is an array with the last 30 days and with the known weights filled in
-    # Insert code here to do the interpolation and make graphs
+    
+    # Interpolation code
+    weights_df = pd.DataFrame(data=weights, columns=("date","weight","bf_pcnt","interp"))
+    first_interp = False
+    
+    for i in range(interp_days):
+        if weights["interp"][i] = 1 and first_interp:
+            
     
     # weight_avg = round(sum(weight_tuple)/len(weight_tuple),1)
     # weight_message = "30 day mvg avg weight: " + str(weight_avg)
