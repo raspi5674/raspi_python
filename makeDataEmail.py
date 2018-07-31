@@ -95,6 +95,8 @@ def getMoonPhaseMessage():
     return messages.get(phasenum,"")
 
 def getWeightData():
+    
+    # connect to the database and get last year of weight data
     conn = sqlite3.connect(DB_DIR)
     cur = conn.cursor()
     interp_days = 365
@@ -105,10 +107,10 @@ def getWeightData():
     cur.execute("SELECT * FROM weight WHERE julianday(date)>=julianday('%s');" % (yearago_string))
     weightdata = cur.fetchall()
     weight_tuple = list(zip(*weightdata))[1]
-    
     cur.close()
     conn.close()
     
+    # Flesh out the data to include every day
     weights = []
     datelist = [j[0] for j in weightdata]
 
@@ -140,7 +142,7 @@ def getWeightData():
     weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
     weight_message = "30 day mvg avg weight: " + str(weight_avg)
     
-    return weight_message
+    return weights_df
 
 
 def updateWeightDatabase():
