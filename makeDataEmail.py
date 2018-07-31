@@ -11,7 +11,7 @@ import sqlite3                            # For weight database connection
 # Constants and file locations
 LOG_FILE = '/home/pi/logging/data_email_log.txt'
 KEYS_FILE = '/home/pi/keys/fitbit_api_keys.json'
-DB_DIR = '/home/pi/health.db'
+DB_DIR = '/home/pi/sqlite/health.db'
 
 def main(log_bool=True):
     
