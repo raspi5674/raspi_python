@@ -118,25 +118,25 @@ def getWeightData():
             k = datelist.index(dt)
             wt = weightdata[k][1]
             bf = weightdata[k][2]
-            interp = 0
         else:
             wt = None
             bf = None
-            interp = 1
-        weights.append((dt,wt,bf,interp))
+        weights.append((dt,wt,bf))
     
     # Interpolation code
-    weights_df = pd.DataFrame(data=weights, columns=("date","weight","bf_pcnt","interp"))
-    first_interp = False
+    weights_df = pd.DataFrame(data=weights, columns=("date","weight","bf_pcnt"))
+    weights_df["weight_interped"] = weights_df["weight"]
     
-    for i in range(interp_days):
-        if weights["interp"][i] = 1 and first_interp:
-            
+    # https://stackoverflow.com/questions/6518811/interpolate-nan-values-in-a-numpy-array
+    y = weights_df["weight_interped"].values
+    nans = numpy.isnan(y)
+    x = lambda z: z.nonzero()[0]
+    y[nans]= numpy.interp(x(nans), x(~nans), y[~nans])    
     
     # weight_avg = round(sum(weight_tuple)/len(weight_tuple),1)
     # weight_message = "30 day mvg avg weight: " + str(weight_avg)
     
-    return weights
+    return weights_df
 
 
 def updateWeightDatabase():
