@@ -131,13 +131,16 @@ def getWeightData():
     y = weights_df["weight_interped"].values
     nans = numpy.isnan(y)
     x = lambda z: z.nonzero()[0]
-    y[nans]= numpy.interp(x(nans), x(~nans), y[~nans])    
+    
+    # This next line somehow edits the weights_df["weights_interped"] column
+    # I think the y array is somehow a 'view' on the dataframe and it edits the underlying data
+    y[nans]= numpy.interp(x(nans), x(~nans), y[~nans])
     weights_df["weight_interped"] = weights_df["weight_interped"].round(1)
     
-    # weight_avg = round(sum(weight_tuple)/len(weight_tuple),1)
-    # weight_message = "30 day mvg avg weight: " + str(weight_avg)
+    weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
+    weight_message = "30 day mvg avg weight: " + str(weight_avg)
     
-    return weights_df
+    return weight_message
 
 
 def updateWeightDatabase():
