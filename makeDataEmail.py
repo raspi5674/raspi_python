@@ -13,6 +13,32 @@ LOG_FILE = '/home/pi/logging/data_email_log.txt'
 KEYS_FILE = '/home/pi/keys/fitbit_api_keys.json'
 DB_DIR = '/home/pi/sqlite/health.db'
 
+def main(log_bool=False):
+    
+    updateWeightDatabase()
+    
+    b = getBTCprice()
+    a, a2 = get538trumpapprove()
+    t, t2 = get10yeartreas()
+    w = getWeightData()
+    m = getMoonPhaseMessage()
+    
+    if m != "":
+        m = '\n' + m 
+    
+    email = (b + '\n' + 
+            '538 Trump Approval: ' + a + " (last wk avg: " + a2 + ')\n' + 
+            '10 Yr UST Yield: ' + t + " (last yr avg: " + t2 + ')' + '\n' + 
+             w + # \n included in m
+             m)
+    
+    if log_bool:
+        email_log = open(LOG_FILE, "a")
+        email_log.write('\n' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M') + '\n' + email + '\n')
+        email_log.close()
+    
+    return email
+
 def getBTCprice():
     try: 
         # Get price as of this exact moment
@@ -69,22 +95,54 @@ def getMoonPhaseMessage():
     return messages.get(phasenum,"")
 
 def getWeightData():
+    
+    # connect to the database and get last year of weight data
     conn = sqlite3.connect(DB_DIR)
     cur = conn.cursor()
+    interp_days = 365
     
-    monthago = datetime.date.today() + datetime.timedelta(days=-30)
-    monthago_string = monthago.strftime("%Y-%m-%d")
-    cur.execute("SELECT * FROM weight WHERE julianday(date)>=julianday('%s');" % (monthago_string))
+    yearago = datetime.date.today() + datetime.timedelta(days=-interp_days)
+    yearago_string = yearago.strftime("%Y-%m-%d")
+    
+    cur.execute("SELECT * FROM weight WHERE julianday(date)>=julianday('%s');" % (yearago_string))
     weightdata = cur.fetchall()
     weight_tuple = list(zip(*weightdata))[1]
-    conn.commit()
     cur.close()
     conn.close()
     
-    weight_avg = round(sum(weight_tuple)/len(weight_tuple),1)
+    # Flesh out the data to include every day
+    weights = []
+    datelist = [j[0] for j in weightdata]
+
+    for i in range(interp_days-1,-1,-1):
+        dt = (datetime.date.today()-datetime.timedelta(days=i)).strftime("%Y-%m-%d")
+        if dt in datelist:
+            k = datelist.index(dt)
+            wt = weightdata[k][1]
+            bf = weightdata[k][2]
+        else:
+            wt = None
+            bf = None
+        weights.append((dt,wt,bf))
+    
+    # Interpolation code
+    weights_df = pd.DataFrame(data=weights, columns=("date","weight","bf_pcnt"))
+    weights_df["weight_interped"] = weights_df["weight"]
+    
+    # https://stackoverflow.com/questions/6518811/interpolate-nan-values-in-a-numpy-array
+    y = weights_df["weight_interped"].values
+    nans = numpy.isnan(y)
+    x = lambda z: z.nonzero()[0]
+    
+    # This next line somehow edits the weights_df["weights_interped"] column
+    # I think the y array is somehow a 'view' on the dataframe and it edits the underlying data
+    y[nans]= numpy.interp(x(nans), x(~nans), y[~nans])
+    weights_df["weight_interped"] = weights_df["weight_interped"].round(1)
+    
+    weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
     weight_message = "30 day mvg avg weight: " + str(weight_avg)
     
-    return weight_message
+    return weights_df
 
 
 def updateWeightDatabase():
@@ -193,29 +251,3 @@ def refreshFitbitTokens(json_keys_file):
         refresh_err = True
         
     return refresh_err
-        
-def main(log_bool=True):
-    
-    updateWeightDatabase()
-    
-    b = getBTCprice()
-    a, a2 = get538trumpapprove()
-    t, t2 = get10yeartreas()
-    m = getMoonPhaseMessage()
-    w = getWeightData()
-    
-    if m != "":
-        m = '\n' + m 
-    
-    email = (b + '\n' + 
-            '538 Trump Approval: ' + a + " (last wk avg: " + a2 + ')\n' + 
-            '10 Yr UST Yield: ' + t + " (last yr avg: " + t2 + ')' + '\n' + 
-             w + # \n included in m
-             m)
-    
-    if log_bool:
-        email_log = open(LOG_FILE, "a")
-        email_log.write('\n' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M') + '\n' + email + '\n')
-        email_log.close()
-    
-    return email
