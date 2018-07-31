@@ -142,7 +142,7 @@ def getWeightData():
     weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
     weight_message = "30 day mvg avg weight: " + str(weight_avg)
     
-    return weights_df
+    return weight_message
 
 
 def updateWeightDatabase():
