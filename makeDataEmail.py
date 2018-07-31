@@ -132,6 +132,7 @@ def getWeightData():
     nans = numpy.isnan(y)
     x = lambda z: z.nonzero()[0]
     y[nans]= numpy.interp(x(nans), x(~nans), y[~nans])    
+    weights_df["weight_interped"] = weights_df["weight_interped"].round(1)
     
     # weight_avg = round(sum(weight_tuple)/len(weight_tuple),1)
     # weight_message = "30 day mvg avg weight: " + str(weight_avg)
