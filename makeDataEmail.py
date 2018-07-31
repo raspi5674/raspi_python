@@ -112,7 +112,7 @@ def getWeightData():
     weights = []
     datelist = [j[0] for j in weightdata]
 
-    for i in range(interp_days):
+    for i in range(interp_days-1,0,-1):
         dt = (datetime.date.today()-datetime.timedelta(days=i)).strftime("%Y-%m-%d")
         if dt in datelist:
             k = datelist.index(dt)
