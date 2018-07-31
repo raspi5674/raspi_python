@@ -178,9 +178,25 @@ def updateWeightDatabase():
           bf = 'NULL'
        else:
           bf = round(weight_data[i]['fat'],1)
-
+       
+       # Update the records if it exists.  If it doesn't then insert it
        cur.execute("UPDATE weight SET weight=%s, bf_pcnt=%s WHERE date='%s';" % (wt,bf,dt))
-
+       cur.execute("SELECT * FROM weight WHERE date='%s';" % (dt))
+       if len(cur.fetchall()) == 0:
+          cur.execute("INSERT INTO weight VALUES ('%s',%s,%s);" % (dt,wt,bf))
+       
+       
+       # NEW TEST UPSERT CODE
+       # MAY NEED TO UPGRADE TO SQLITE 3.24 TO USE THIS CODE
+       # wt_updt = ""
+       # bf_updt = ""
+       # if wt != 'NULL':
+       #    wt_updt = "weight=%s " % wt
+       # if bf != 'NULL':
+       #    bf_updt = "bf_pcnt=%s " % bf
+       # upsert = "INSERT INTO weight VALUES ('%s',%s,%s) ON CONFLICT(date) DO UPDATE SET %s%sWHERE date='%s';" % (dt,wt,bf,wt_updt,bf_updt,dt)
+       # cur.execute(upsert)
+  
     conn.commit()
     cur.close()
     conn.close()
