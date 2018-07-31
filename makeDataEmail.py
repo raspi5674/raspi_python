@@ -97,33 +97,38 @@ def getMoonPhaseMessage():
 def getWeightData():
     conn = sqlite3.connect(DB_DIR)
     cur = conn.cursor()
+    interp_days = 365
     
-    monthago = datetime.date.today() + datetime.timedelta(days=-30)
-    monthago_string = monthago.strftime("%Y-%m-%d")
-    cur.execute("SELECT * FROM weight WHERE julianday(date)>=julianday('%s');" % (monthago_string))
+    yearago = datetime.date.today() + datetime.timedelta(days=-interp_days)
+    yearago_string = yearago.strftime("%Y-%m-%d")
+    
+    cur.execute("SELECT * FROM weight WHERE julianday(date)>=julianday('%s');" % (yearago_string))
     weightdata = cur.fetchall()
     weight_tuple = list(zip(*weightdata))[1]
+    
     cur.close()
     conn.close()
-    
-    weight_avg = round(sum(weight_tuple)/len(weight_tuple),1)
-    weight_message = "30 day mvg avg weight: " + str(weight_avg)
     
     weights = []
     datelist = [j[0] for j in weightdata]
 
-    for i in range(30):
+    for i in range(interp_days):
         dt = (datetime.date.today()-datetime.timedelta(days=i)).strftime("%Y-%m-%d")
         if dt in datelist:
             k = datelist.index(dt)
             wt = weightdata[k][1]
             bf = weightdata[k][2]
+            interp = 0
         else:
             wt = None
             bf = None
-        weights.append((dt,wt,bf))
+            interp = 1
+        weights.append((dt,wt,bf,interp))
     # Weights now is an array with the last 30 days and with the known weights filled in
     # Insert code here to do the interpolation and make graphs
+    
+    # weight_avg = round(sum(weight_tuple)/len(weight_tuple),1)
+    # weight_message = "30 day mvg avg weight: " + str(weight_avg)
     
     return weights
 
