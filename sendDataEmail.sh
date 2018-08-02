@@ -7,7 +7,7 @@ cd ~/raspi_python
 python3 -c 'import makeDataEmail; print(makeDataEmail.main(True))' > tempMessage.txt
 
 # Send the email
-cat tempMessage.txt | mail -s "Daily Data" mot5600@yahoo.com
+cat tempMessage.txt | mail -s "Daily Data" -a /home/pi/test.png mot5600@yahoo.com
 
 # Remove the temp file and go back to the home directory
 rm tempMessage.txt
