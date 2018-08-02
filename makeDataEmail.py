@@ -147,7 +147,7 @@ def graphHelper(data):
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     
-    plt.plot(range(10,20))
+    plt.plot(data["weight_interped"])
     plt.savefig("asdf.png")
 
 def updateWeightDatabase():
