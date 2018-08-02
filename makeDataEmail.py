@@ -20,7 +20,7 @@ def main(log_bool=False):
     b = getBTCprice()
     a, a2 = get538trumpapprove()
     t, t2 = get10yeartreas()
-    w = getWeightData()
+    w, i = getWeightData()
     m = getMoonPhaseMessage()
     
     if m != "":
@@ -141,22 +141,26 @@ def getWeightData():
     weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
     weight_message = "30 day mvg avg weight: " + str(weight_avg)
     
-    return weights_df
+    weight_img_loc = graphHelper(weights_df)
+    
+    return weights_df, weight_img_loc
 
 def graphHelper(df):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     
+    imgloc = "/home/pi/test.png"
+    
     plt.plot(df["weight_interped"].tail(30))
     plt.plot(df["wkly_avg"].tail(30))
     plt.xlabel('Date')
     plt.ylabel('Weight')
     
-    plt.savefig("/home/pi/test.png")
+    plt.savefig(imgloc)
     # then use secure copy to get it to mac and view it there
     
-    return
+    return imgloc
 
 def updateWeightDatabase():
     # This code refreshes the access token
