@@ -140,8 +140,15 @@ def getWeightData():
     weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
     weight_message = "30 day mvg avg weight: " + str(weight_avg)
     
-    return weight_message
+    return weight_df
 
+def graphHelper(data):
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    
+    plt.plot(range(10,20))
+    plt.savefig("asdf.png")
 
 def updateWeightDatabase():
     # This code refreshes the access token
