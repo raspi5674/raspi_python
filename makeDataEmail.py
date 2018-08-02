@@ -136,19 +136,27 @@ def getWeightData():
     # I think the y array is somehow a 'view' on the dataframe and it edits the underlying data
     y[nans]= numpy.interp(x(nans), x(~nans), y[~nans])
     weights_df["weight_interped"] = weights_df["weight_interped"].round(1)
+    weights_df["wkly_avg"] = weights_df["weight_interped"].rolling(window=7).mean().round(1)
     
     weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
     weight_message = "30 day mvg avg weight: " + str(weight_avg)
     
     return weights_df
 
-def graphHelper(data):
+def graphHelper(df):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     
-    plt.plot(data["weight_interped"])
-    plt.savefig("asdf.png")
+    plt.plot(df["weight_interped"].tail(30))
+    plt.plot(df["wkly_avg"].tail(30))
+    plt.xlabel('Date')
+    plt.ylabel('Weight')
+    
+    plt.savefig("/home/pi/test.png")
+    # then use secure copy to get it to mac and view it there
+    
+    return
 
 def updateWeightDatabase():
     # This code refreshes the access token
