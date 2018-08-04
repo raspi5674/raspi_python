@@ -20,7 +20,7 @@ def main(log_bool=False):
     b = getBTCprice()
     a, a2 = get538trumpapprove()
     t, t2 = get10yeartreas()
-    w, i = getWeightData()
+    w = getWeightData()
     m = getMoonPhaseMessage()
     
     if m != "":
@@ -143,14 +143,14 @@ def getWeightData():
     
     weight_img_loc = graphHelper(weights_df)
     
-    return weights_df, weight_img_loc
+    return weight_message
 
 def graphHelper(df):
-    import matplotlib
+    import matplotlib, os
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     
-    imgloc = "/home/pi/test.png"
+    imgloc = os.getcwd() + "/daily_img.png"
     
     plt.plot(df["weight_interped"].tail(30))
     plt.plot(df["wkly_avg"].tail(30))
