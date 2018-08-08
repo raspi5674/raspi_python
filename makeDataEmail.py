@@ -139,13 +139,14 @@ def getWeightData():
     y[nans]= numpy.interp(x(nans), x(~nans), y[~nans])
     weights_df["weight_interped"] = weights_df["weight_interped"].round(1)
     weights_df["wkly_avg"] = weights_df["weight_interped"].rolling(window=7).mean().round(1)
+    weights_df["mthly_avg"] = weights_df["weight_interped"].rolling(window=30).mean().round(1)
     
     weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
     weight_message = "30 day mvg avg weight: " + str(weight_avg)
     
     weight_img_loc = graphHelper(weights_df)
     
-    return weight_message
+    return weights_df
 
 def graphHelper(df):
     import matplotlib, os
@@ -154,10 +155,21 @@ def graphHelper(df):
     
     imgloc = os.getcwd() + "/daily_img.png"
     
-    plt.plot(df["weight_interped"].tail(30))
-    plt.plot(df["wkly_avg"].tail(30))
+    # convert dates to datetime format and cut down to last 30 dates
+    darray = [datetime.datetime.strptime(date,'%Y-%m-%d') for date in df.date.values[:]][334:364]
+    
+    plt.plot(darray, df["weight_interped"].tail(30), color='g', linewidth=.5, alpha=.5)
+    plt.plot(darray, df["wkly_avg"].tail(30), color='g', linewidth=1)
+    plt.plot(darray, df["mthly_avg"].tail(30), color = 'g', linewidth=1.5)
+    plt.legend(["Daily Weight","Weekly Avg","Monthly Avg"])
     plt.xlabel('Date')
     plt.ylabel('Weight')
+    
+    # Add the grid lines
+    plt.grid(which ='major', axis = 'y', color='k', linestyle='-', linewidth=.5)
+    plt.grid(which ='major', axis = 'x', color='k', linestyle='-', linewidth=.5)
+    plt.grid(which ='minor', axis = 'y', color='k', linestyle='-', linewidth=.05)
+    plt.minorticks_on()
     
     plt.savefig(imgloc)
     # then use secure copy to get it to mac and view it there
