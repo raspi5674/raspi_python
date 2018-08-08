@@ -5,7 +5,7 @@ from pandas.io.json import json_normalize # for BTC price
 import quandl, numpy                      # for treasury yield
 import datetime, pandas as pd             # for 538 Trump approve
 from astral import Astral                 # For moon phase
-import fitbit, urllib, base64             # For weight data
+import fitbit, urllib, base64, os         # For weight data
 import sqlite3                            # For weight database connection
 
 # Constants and file locations
@@ -13,14 +13,14 @@ LOG_FILE = '/home/pi/logging/data_email_log.txt'
 KEYS_FILE = '/home/pi/keys/fitbit_api_keys.json'
 DB_DIR = '/home/pi/sqlite/health.db'
 
-def main(cwd, log_bool=False):
+def main(log_bool=False):
     
     updateWeightDatabase()
     
     b = getBTCprice()
     a, a2 = get538trumpapprove()
     t, t2 = get10yeartreas()
-    w = getWeightData(cwd)
+    w = getWeightData(os.getcwd())
     m = getMoonPhaseMessage()
     
     if m != "":
@@ -149,7 +149,7 @@ def getWeightData(cwd):
     return weight_message
 
 def graphHelper(df, cwd):
-    import matplotlib, os
+    import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     
