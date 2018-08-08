@@ -143,7 +143,7 @@ def getWeightData():
     
     weight_img_loc = graphHelper(weights_df)
     
-    return weight_message
+    return weights_df
 
 def graphHelper(df):
     import matplotlib, os
