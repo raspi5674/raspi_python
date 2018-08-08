@@ -13,14 +13,14 @@ LOG_FILE = '/home/pi/logging/data_email_log.txt'
 KEYS_FILE = '/home/pi/keys/fitbit_api_keys.json'
 DB_DIR = '/home/pi/sqlite/health.db'
 
-def main(log_bool=False):
+def main(log_bool=False, cwd):
     
     updateWeightDatabase()
     
     b = getBTCprice()
     a, a2 = get538trumpapprove()
     t, t2 = get10yeartreas()
-    w = getWeightData()
+    w = getWeightData(cwd)
     m = getMoonPhaseMessage()
     
     if m != "":
@@ -94,7 +94,7 @@ def getMoonPhaseMessage():
                 14:"Full moon today!"}
     return messages.get(phasenum,"")
 
-def getWeightData():
+def getWeightData(cwd):
     
     # connect to the database and get last year of weight data
     conn = sqlite3.connect(DB_DIR)
@@ -144,16 +144,16 @@ def getWeightData():
     weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
     weight_message = "30 day mvg avg weight: " + str(weight_avg)
     
-    weight_img_loc = graphHelper(weights_df)
+    weight_img_loc = graphHelper(weights_df, cwd)
     
     return weight_message
 
-def graphHelper(df):
+def graphHelper(df, cwd):
     import matplotlib, os
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     
-    imgloc = os.getcwd() + "/daily_img.png"
+    imgloc = cwd + "/daily_img.png"
     
     # convert dates to datetime format and cut down to last 30 dates
     darray = [datetime.datetime.strptime(date,'%Y-%m-%d') for date in df.date.values[:]][334:364]
