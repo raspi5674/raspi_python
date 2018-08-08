@@ -166,7 +166,7 @@ def graphHelper(df):
     # Add the grid lines
     plt.grid(which ='major', axis = 'y', color='k', linestyle='-', linewidth=.5)
     plt.grid(which ='major', axis = 'x', color='k', linestyle='-', linewidth=.5)
-    plt.grid(which ='minor', axis = 'y', color='k', linestyle='-', linewidth=.1)
+    plt.grid(which ='minor', axis = 'y', color='k', linestyle='-', linewidth=.05)
     plt.minorticks_on()
     
     plt.savefig(imgloc)
