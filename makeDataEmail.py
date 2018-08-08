@@ -152,8 +152,11 @@ def graphHelper(df):
     
     imgloc = os.getcwd() + "/daily_img.png"
     
-    plt.plot(df["weight_interped"].tail(30))
-    plt.plot(df["wkly_avg"].tail(30))
+    # convert dates to datetime format and cut down to last 30 dates
+    darray = [datetime.datetime.strptime(date,'%Y-%m-%d') for date in df.date.values[:]][334:364]
+    
+    plt.plot(darray, df["weight_interped"].tail(30))
+    plt.plot(darray, df["wkly_avg"].tail(30))
     plt.xlabel('Date')
     plt.ylabel('Weight')
     
