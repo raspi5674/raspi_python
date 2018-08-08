@@ -159,6 +159,7 @@ def graphHelper(df):
     plt.plot(darray, df["weight_interped"].tail(30), color='g', linewidth=.5, alpha=.5)
     plt.plot(darray, df["wkly_avg"].tail(30), color='g', linewidth=1)
     plt.plot(darray, df["mthly_avg"].tail(30), color = 'g', linewidth=1.5)
+    plt.legent(["Daily Weight","Weekly Avg","Monthly Avg"])
     plt.xlabel('Date')
     plt.ylabel('Weight')
     
