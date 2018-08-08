@@ -137,7 +137,7 @@ def getWeightData():
     y[nans]= numpy.interp(x(nans), x(~nans), y[~nans])
     weights_df["weight_interped"] = weights_df["weight_interped"].round(1)
     weights_df["wkly_avg"] = weights_df["weight_interped"].rolling(window=7).mean().round(1)
-    weights_df["mthly_avg"] = weights_df["weight_interped"].rolling(window=30).mean.round(1)
+    weights_df["mthly_avg"] = weights_df["weight_interped"].rolling(window=30).mean().round(1)
     
     weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
     weight_message = "30 day mvg avg weight: " + str(weight_avg)
