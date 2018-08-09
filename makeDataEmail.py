@@ -141,6 +141,26 @@ def getWeightData(cwd):
     weights_df["wkly_avg"] = weights_df["weight_interped"].rolling(window=7).mean().round(1)
     weights_df["mthly_avg"] = weights_df["weight_interped"].rolling(window=30).mean().round(1)
     
+    # Date Goal  TEST THIS CODE
+    weights_df["Date_Goal"] = weights_df["mthly_avg"][:]
+    goal_date = datetime.date(2019,1,16) # Jan 16, 2019
+    goal_weight = 200
+    t_delta = goal_date - datetime.date.today()
+    days_til_goal = t_delta.days
+    daily_wt_loss = (weights_df["Date_Goal"][-30] - goal_weight)/days_til_goal
+    
+    # 1 lb/week goal  TEST THIS CODE
+    weights_df["1lb_wk_goal"] = weights_df["mthly_avg"][:]
+    
+    # Loop through and set goals TEST THIS CODE
+    for i in range(30,0,-1):
+        weights_df["1lb_wk_goal"][-i] = weights_df["1lb_wk_goal"][-i-1] - 1/7
+        weights_df["Date_Goal"][-i] = weights_df["Date_Goal"][-i-1] - daily_wt_loss
+        
+    weights_df["1lb_wk_goal"] = weights_df["1lb_wk_goal"].round(1)
+    weights_df["Date_Goal"] = weights_df["Date_Goal"].round(1)
+    
+    
     weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
     weight_message = "30 day mvg avg weight: " + str(weight_avg)
     
@@ -158,6 +178,11 @@ def graphHelper(df, cwd):
     # convert dates to datetime format and cut down to last 30 dates
     darray = [datetime.datetime.strptime(date,'%Y-%m-%d') for date in df.date.values[:]][334:364]
     
+    # Graph the goal lines TEST THIS CODE
+    plt.plot(darray, df["1lb_wk_goal"].tail(30), color='b', linewidth=.7, alpha=.7)
+    plt.plot(darray, df["Date_Goal"].tail(30), color='b', linewidth=.4, alpha=.7)
+    
+    # Graph the actual weight and mvg avg lines
     plt.plot(darray, df["weight_interped"].tail(30), color='g', linewidth=.5, alpha=.5)
     plt.plot(darray, df["wkly_avg"].tail(30), color='g', linewidth=1)
     plt.plot(darray, df["mthly_avg"].tail(30), color = 'g', linewidth=1.5)
