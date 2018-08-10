@@ -147,18 +147,15 @@ def getWeightData(cwd):
     goal_weight = 200
     t_delta = goal_date - datetime.date.today()
     days_til_goal = t_delta.days
-    daily_wt_loss = (weights_df["Date_Goal"][-30] - goal_weight)/days_til_goal
+    daily_wt_loss = (weights_df["Date_Goal"].values[-30] - goal_weight)/days_til_goal
     
     # 1 lb/week goal  TEST THIS CODE
     weights_df["1lb_wk_goal"] = weights_df["mthly_avg"][:]
     
     # Loop through and set goals TEST THIS CODE
     for i in range(30,0,-1):
-        weights_df["1lb_wk_goal"][-i] = weights_df["1lb_wk_goal"][-i-1] - 1/7
-        weights_df["Date_Goal"][-i] = weights_df["Date_Goal"][-i-1] - daily_wt_loss
-        
-    weights_df["1lb_wk_goal"] = weights_df["1lb_wk_goal"]
-    weights_df["Date_Goal"] = weights_df["Date_Goal"]
+        weights_df["1lb_wk_goal"].values[-i] = weights_df["1lb_wk_goal"].values[-i-1] - 1/7
+        weights_df["Date_Goal"].values[-i] = weights_df["Date_Goal"].values[-i-1] - daily_wt_loss
     
     
     weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
