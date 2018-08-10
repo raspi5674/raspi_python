@@ -157,8 +157,8 @@ def getWeightData(cwd):
         weights_df["1lb_wk_goal"][-i] = weights_df["1lb_wk_goal"][-i-1] - 1/7
         weights_df["Date_Goal"][-i] = weights_df["Date_Goal"][-i-1] - daily_wt_loss
         
-    weights_df["1lb_wk_goal"] = weights_df["1lb_wk_goal"].round(1)
-    weights_df["Date_Goal"] = weights_df["Date_Goal"].round(1)
+    weights_df["1lb_wk_goal"] = weights_df["1lb_wk_goal"]
+    weights_df["Date_Goal"] = weights_df["Date_Goal"]
     
     
     weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
