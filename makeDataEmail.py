@@ -153,7 +153,7 @@ def getWeightData(cwd):
     weights_df["1lb_wk_goal"] = weights_df["mthly_avg"][:]
     
     # Loop through and set goals TEST THIS CODE
-    for i in range(30,0,-1):
+    for i in range(29,0,-1):
         weights_df["1lb_wk_goal"].values[-i] = weights_df["1lb_wk_goal"].values[-i-1] - 1/7
         weights_df["Date_Goal"].values[-i] = weights_df["Date_Goal"].values[-i-1] - daily_wt_loss
     
