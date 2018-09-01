@@ -183,7 +183,7 @@ def graphHelper(df, cwd):
     plt.plot(darray, df["weight_interped"].tail(30), color='g', linewidth=.5, alpha=.5)
     plt.plot(darray, df["wkly_avg"].tail(30), color='g', linewidth=1)
     plt.plot(darray, df["mthly_avg"].tail(30), color = 'g', linewidth=1.5)
-    plt.legend(["Daily Weight","Weekly Avg","Monthly Avg"])
+    plt.legend(["1 lb/wk goal","Date Goal","Daily Weight","Weekly Avg","Monthly Avg"])
     plt.xlabel('Date')
     plt.ylabel('Weight')
     
