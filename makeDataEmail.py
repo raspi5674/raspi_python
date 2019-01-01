@@ -172,17 +172,24 @@ def graphHelper(df, cwd):
     
     imgloc = cwd + "/daily_img.png"
     
+    if datetime.datetime.today().strftime("%d") = '01':
+        days = 30
+    else:
+        days = 360
+    
+    df = df.tail(days)
+    
     # convert dates to datetime format and cut down to last 30 dates
-    darray = [datetime.datetime.strptime(date,'%Y-%m-%d') for date in df.date.values[:]][334:364]
+    darray = [datetime.datetime.strptime(date,'%Y-%m-%d') for date in df.date.values[:]]
     
     # Graph the goal lines TEST THIS CODE
-    plt.plot(darray, df["1lb_wk_goal"].tail(30), color='b', linewidth=.7, alpha=.7)
-    plt.plot(darray, df["Date_Goal"].tail(30), color='b', linewidth=.4, alpha=.7)
+    plt.plot(darray, df["1lb_wk_goal"], color='b', linewidth=.7, alpha=.7)
+    plt.plot(darray, df["Date_Goal"], color='b', linewidth=.4, alpha=.7)
     
     # Graph the actual weight and mvg avg lines
-    plt.plot(darray, df["weight_interped"].tail(30), color='g', linewidth=.5, alpha=.5)
-    plt.plot(darray, df["wkly_avg"].tail(30), color='g', linewidth=1)
-    plt.plot(darray, df["mthly_avg"].tail(30), color = 'g', linewidth=1.5)
+    plt.plot(darray, df["weight_interped"], color='g', linewidth=.5, alpha=.5)
+    plt.plot(darray, df["wkly_avg"], color='g', linewidth=1)
+    plt.plot(darray, df["mthly_avg"], color = 'g', linewidth=1.5)
     plt.legend(["1 lb/wk goal","Date Goal","Daily Weight","Weekly Avg","Monthly Avg"])
     plt.xlabel('Date')
     plt.ylabel('Weight')
