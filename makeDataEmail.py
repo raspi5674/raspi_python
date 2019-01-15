@@ -172,7 +172,7 @@ def graphHelper(df, cwd):
     
     imgloc = cwd + "/daily_img.png"
     
-    if datetime.datetime.today().strftime("%d") == '01':
+    if datetime.datetime.today().strftime("%d") in ('01', '07', '14', '21', '28'):
         days = 360
     else:
         days = 30
