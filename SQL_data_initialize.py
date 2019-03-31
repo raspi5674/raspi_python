@@ -1,7 +1,14 @@
 # this code written in python 3
 
 # SQLITE CODE TO SET UP HEALTH TABLE:
-# CREATE TABLE "weight" ( date TEXT PRIMARY KEY, weight REAL, bf_pcnt REAL );
+# > CREATE TABLE "weight" ( date TEXT PRIMARY KEY, weight REAL, bf_pcnt REAL );
+#
+# HERE IS CODE TO UDPATE FOR LEXI STUFF, adding name as a col and update with my name.
+# sqlite3 health.db
+# > .tables
+# > ALTER TABLE weight ADD COLUMN name char(4);
+# > UPDATE weight SET name = "tom";
+# > schema
 
 import sqlite3
 import pandas as pd
