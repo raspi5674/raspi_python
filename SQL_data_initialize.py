@@ -8,7 +8,9 @@
 # > .tables
 # > ALTER TABLE weight ADD COLUMN name char(4);
 # > UPDATE weight SET name = "tom";
-# > schema
+# > .schema
+# > .quit
+# 
 
 import sqlite3
 import pandas as pd
