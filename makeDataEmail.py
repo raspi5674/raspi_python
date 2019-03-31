@@ -20,7 +20,7 @@ def main(log_bool=False):
     b = getBTCprice()
     a, a2 = get538trumpapprove()
     t, t2 = get10yeartreas()
-    w = getWeightData(os.getcwd())
+    w = getWeightData(os.getcwd(), "tom")
     m = getMoonPhaseMessage()
     
     if m != "":
@@ -94,7 +94,7 @@ def getMoonPhaseMessage():
                 14:"Full moon today!"}
     return messages.get(phasenum,"")
 
-def getWeightData(cwd):
+def getWeightData(cwd, name):
     
     # connect to the database and get last year of weight data
     conn = sqlite3.connect(DB_DIR)
@@ -104,7 +104,7 @@ def getWeightData(cwd):
     yearago = datetime.date.today() + datetime.timedelta(days=-interp_days)
     yearago_string = yearago.strftime("%Y-%m-%d")
     
-    cur.execute("SELECT * FROM weight WHERE julianday(date)>=julianday('%s');" % (yearago_string))
+    cur.execute("SELECT * FROM weight WHERE julianday(date)>=julianday('%s') AND name = '%s';" % (yearago_string, name))
     weightdata = cur.fetchall()
     weight_tuple = list(zip(*weightdata))[1]
     cur.close()
@@ -242,10 +242,10 @@ def updateWeightDatabase(name):
           bf = round(weight_data[i]['fat'],1)
        
        # Update the records if it exists.  If it doesn't then insert it
-       cur.execute("UPDATE weight SET weight=%s, bf_pcnt=%s WHERE date='%s';" % (wt,bf,dt))
-       cur.execute("SELECT * FROM weight WHERE date='%s';" % (dt))
+       cur.execute("UPDATE weight SET weight=%s, bf_pcnt=%s WHERE date='%s' AND name = '%s';" % (wt,bf,dt, name))
+       cur.execute("SELECT * FROM weight WHERE date='%s' AND name='%s';" % (dt, name))
        if len(cur.fetchall()) == 0:
-          cur.execute("INSERT INTO weight VALUES ('%s',%s,%s);" % (dt,wt,bf))
+          cur.execute("INSERT INTO weight VALUES ('%s',%s,%s,'%s');" % (dt,wt,bf,name))
        
        
        # NEW TEST UPSERT CODE
