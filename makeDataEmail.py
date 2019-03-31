@@ -27,18 +27,18 @@ def main(log_bool=False):
     if m != "":
         m = '\n' + m 
     
-    email = (b + '\n' + 
+    f = open("dailyMessage.txt", "x")
+    f.write(b + '\n' + 
             '538 Trump Approval: ' + a + " (last wk avg: " + a2 + ')\n' + 
             '10 Yr UST Yield: ' + t + " (last yr avg: " + t2 + ')' + '\n' + 
              w + # \n included in m
              m)
+    f.close()
     
     if log_bool:
         email_log = open(LOG_FILE, "a")
         email_log.write('\n' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M') + '\n' + email + '\n')
         email_log.close()
-    
-    return email
 
 def getBTCprice():
     try: 
