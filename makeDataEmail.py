@@ -47,12 +47,15 @@ def makeDailyEmail():
 def makeWeightChallengeEmail():
     startDate = datetime.date(2019,4,1)
     endDate = datetime.date(2019,6,10)
+    people = ["tom", "lexi"]
+    goalweights = [215, 135]
     
-    people = 1
-    goalweights = 1
-    
-    
-    return TRUE
+    f = open("weightLossMessage.txt", "x")
+    f.write("The 10 week challenge is %s over with %s days left." + '\n' + 
+            "Tom is on/not on track" + 
+            "Lexi is on/not on track" + 
+            "anything else we want.")
+    f.close()
 
 def getBTCprice():
     try: 
