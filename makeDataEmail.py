@@ -16,6 +16,7 @@ DB_DIR = '/home/pi/sqlite/health_test.db'
 def main(log_bool=False):
     
     updateWeightDatabase("tom")
+    updateWeightDatabase("lexi")
     
     b = getBTCprice()
     a, a2 = get538trumpapprove()
