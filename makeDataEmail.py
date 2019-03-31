@@ -10,12 +10,12 @@ import sqlite3                            # For weight database connection
 
 # Constants and file locations
 LOG_FILE = '/home/pi/logging/data_email_log.txt'
-KEYS_FILE = '/home/pi/keys/fitbit_api_keys.json'
+KEYS_FILE = '/home/pi/keys/testkeys.json'
 DB_DIR = '/home/pi/sqlite/health.db'
 
 def main(log_bool=False):
     
-    updateWeightDatabase()
+    updateWeightDatabase("tom")
     
     b = getBTCprice()
     a, a2 = get538trumpapprove()
@@ -205,16 +205,16 @@ def graphHelper(df, cwd):
     
     return imgloc
 
-def updateWeightDatabase():
+def updateWeightDatabase(name):
     # This code refreshes the access token
-    refresh_err = refreshFitbitTokens(KEYS_FILE)
+    refresh_err = refreshFitbitTokens(KEYS_FILE, name)
     
     # If the refresh failed, return an error message
     if refresh_err: 
         return "Error with weight data."
     
     # Load the updated API information
-    fitbit_api_keys = json.load(open(KEYS_FILE))
+    fitbit_api_keys = json.load(open(KEYS_FILE))[name]
     client_id = fitbit_api_keys['client_id']
     client_secret = fitbit_api_keys['client_secret']
     access_token = fitbit_api_keys['access_token']
@@ -263,12 +263,12 @@ def updateWeightDatabase():
     cur.close()
     conn.close()
 
-def refreshFitbitTokens(json_keys_file):
+def refreshFitbitTokens(json_keys_file, name):
     # Open the json file with the API keys, and load the data that we need
     fitbit_api_keys = json.load(open(json_keys_file))
-    client_id = fitbit_api_keys['client_id']
-    client_secret = fitbit_api_keys['client_secret']
-    refresh_token = fitbit_api_keys['refresh_token']
+    client_id = fitbit_api_keys[name]['client_id']
+    client_secret = fitbit_api_keys[name]['client_secret']
+    refresh_token = fitbit_api_keys[name]['refresh_token']
     
     # Set up the body of the http request
     TokenURL = 'https://api.fitbit.com/oauth2/token'
@@ -294,9 +294,9 @@ def refreshFitbitTokens(json_keys_file):
         ResponseJSON = json.loads(FullResponse.decode('utf-8'))
         
         # Put the keys into the json file
-        fitbit_api_keys['access_token'] = str(ResponseJSON['access_token'])
-        fitbit_api_keys['refresh_token'] = str(ResponseJSON['refresh_token'])
-        fitbit_api_keys['last-refreshed'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        fitbit_api_keys[name]['access_token'] = str(ResponseJSON['access_token'])
+        fitbit_api_keys[name]['refresh_token'] = str(ResponseJSON['refresh_token'])
+        fitbit_api_keys[name]['last-refreshed'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         
         # Update the actual file 
         with open(KEYS_FILE, 'w') as outfile:
