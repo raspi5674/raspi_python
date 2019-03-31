@@ -18,6 +18,10 @@ def main(log_bool=False):
     updateWeightDatabase("tom")
     updateWeightDatabase("lexi")
     
+    makeDailyEmail()
+    makeWeightChallengeEmail()
+    
+def makeDailyEmail():
     b = getBTCprice()
     a, a2 = get538trumpapprove()
     t, t2 = get10yeartreas()
@@ -39,6 +43,16 @@ def main(log_bool=False):
         email_log = open(LOG_FILE, "a")
         email_log.write('\n' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M') + '\n' + email + '\n')
         email_log.close()
+        
+def makeWeightChallengeEmail():
+    startDate = datetime.date(2019,4,1)
+    endDate = datetime.date(2019,6,10)
+    
+    people = 1
+    goalweights = 1
+    
+    
+    return TRUE
 
 def getBTCprice():
     try: 
