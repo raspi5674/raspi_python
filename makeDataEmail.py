@@ -45,13 +45,23 @@ def makeDailyEmail():
         email_log.close()
         
 def makeWeightChallengeEmail():
+    # INPUTS INTO WEIGHT CHALLENGE
     startDate = datetime.date(2019,4,1)
     endDate = datetime.date(2019,6,10)
     people = ["tom", "lexi"]
     goalweights = [215, 135]
     
+    # CALCULATE SOME DAY STUFF
+    curDay = datetime.date.today()
+    totalDays = (endDate - startDate).days
+    dayNum = (curDay - startDate).days + 1
+    daysLeft = (endDate - curDay).days - 1
+    
+    # PULL THE WEIGHT DATA
+    # refactor other code?
+    
     f = open("weightLossMessage.txt", "x")
-    f.write("The 10 week challenge is %s over with %s days left." + '\n' + 
+    f.write("It's day " + dayNum + " of the 10 week challenge, there are " + daysLeft + " days left." + '\n' + 
             "Tom is on/not on track" + 
             "Lexi is on/not on track" + 
             "anything else we want.")
@@ -174,7 +184,6 @@ def getWeightData(cwd, name):
     for i in range(29,0,-1):
         weights_df["1lb_wk_goal"].values[-i] = weights_df["1lb_wk_goal"].values[-i-1] - 1/7
         weights_df["Date_Goal"].values[-i] = weights_df["Date_Goal"].values[-i-1] - daily_wt_loss
-    
     
     weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
     weight_message = "30 day mvg avg weight: " + str(weight_avg)
