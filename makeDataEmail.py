@@ -13,15 +13,15 @@ LOG_FILE = '/home/pi/logging/data_email_log.txt'
 KEYS_FILE = '/home/pi/keys/testkeys.json'
 DB_DIR = '/home/pi/sqlite/health_test.db'
 
-def main(log_bool=False):
+def main(log_bool = False):
     
     updateWeightDatabase("tom")
     updateWeightDatabase("lexi")
     
-    makeDailyEmail()
+    makeDailyEmail(log_bool)
     makeWeightChallengeEmail()
     
-def makeDailyEmail():
+def makeDailyEmail(log_bool = False):
     b = getBTCprice()
     a, a2 = get538trumpapprove()
     t, t2 = get10yeartreas()
