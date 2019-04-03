@@ -58,7 +58,8 @@ def makeWeightChallengeEmail():
     daysLeft = (endDate - curDay).days - 1
     
     # PULL THE WEIGHT DATA
-    # refactor other code?
+    df_tom = readWeightDB("tom")
+    df_lexi = readWeightDB("lexi")
     
     f = open("weightLossMessage.txt", "x")
     f.write("It's day " + dayNum + " of the 10 week challenge, there are " + daysLeft + " days left." + '\n' + 
@@ -124,10 +125,35 @@ def getMoonPhaseMessage():
 
 def getWeightData(cwd, name):
     
+    weights_df = readWeightDB(name, 365)
+
+    # Date Goal
+    weights_df["Date_Goal"] = weights_df["mthly_avg"][:]
+    goal_date = datetime.date(2019,10,23) # Oct 23, 2019 (Doctor's Apt)
+    goal_weight = 175
+    t_delta = goal_date - datetime.date.today()
+    days_til_goal = t_delta.days
+    daily_wt_loss = (weights_df["Date_Goal"].values[-30] - goal_weight)/days_til_goal
+    
+    # 1 lb/week goal  TEST THIS CODE
+    weights_df["1lb_wk_goal"] = weights_df["mthly_avg"][:]
+    
+    # Loop through and set goals TEST THIS CODE
+    for i in range(29,0,-1):
+        weights_df["1lb_wk_goal"].values[-i] = weights_df["1lb_wk_goal"].values[-i-1] - 1/7
+        weights_df["Date_Goal"].values[-i] = weights_df["Date_Goal"].values[-i-1] - daily_wt_loss
+    
+    weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
+    weight_message = "30 day mvg avg weight: " + str(weight_avg)
+    
+    weight_img_loc = graphHelper(weights_df, cwd)
+    
+    return weight_message
+
+def readWeightDB(name, interp_days):
     # connect to the database and get last year of weight data
     conn = sqlite3.connect(DB_DIR)
     cur = conn.cursor()
-    interp_days = 365
     
     yearago = datetime.date.today() + datetime.timedelta(days=-interp_days)
     yearago_string = yearago.strftime("%Y-%m-%d")
@@ -169,28 +195,7 @@ def getWeightData(cwd, name):
     weights_df["wkly_avg"] = weights_df["weight_interped"].rolling(window=7).mean().round(1)
     weights_df["mthly_avg"] = weights_df["weight_interped"].rolling(window=30).mean().round(1)
     
-    # Date Goal  TEST THIS CODE
-    weights_df["Date_Goal"] = weights_df["mthly_avg"][:]
-    goal_date = datetime.date(2019,10,23) # Oct 23, 2019 (Doctor's Apt)
-    goal_weight = 175
-    t_delta = goal_date - datetime.date.today()
-    days_til_goal = t_delta.days
-    daily_wt_loss = (weights_df["Date_Goal"].values[-30] - goal_weight)/days_til_goal
-    
-    # 1 lb/week goal  TEST THIS CODE
-    weights_df["1lb_wk_goal"] = weights_df["mthly_avg"][:]
-    
-    # Loop through and set goals TEST THIS CODE
-    for i in range(29,0,-1):
-        weights_df["1lb_wk_goal"].values[-i] = weights_df["1lb_wk_goal"].values[-i-1] - 1/7
-        weights_df["Date_Goal"].values[-i] = weights_df["Date_Goal"].values[-i-1] - daily_wt_loss
-    
-    weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
-    weight_message = "30 day mvg avg weight: " + str(weight_avg)
-    
-    weight_img_loc = graphHelper(weights_df, cwd)
-    
-    return weight_message
+    return weights_df
 
 def graphHelper(df, cwd):
     import matplotlib
