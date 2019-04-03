@@ -31,12 +31,14 @@ def makeDailyEmail(log_bool = False):
     if m != "":
         m = '\n' + m 
     
-    f = open("dailyMessage.txt", "x")
-    f.write(b + '\n' + 
+    email = b + '\n' + 
             '538 Trump Approval: ' + a + " (last wk avg: " + a2 + ')\n' + 
             '10 Yr UST Yield: ' + t + " (last yr avg: " + t2 + ')' + '\n' + 
              w + # \n included in m
-             m)
+             m
+    
+    f = open("dailyMessage.txt", "x")
+    f.write(email)
     f.close()
     
     if log_bool:
