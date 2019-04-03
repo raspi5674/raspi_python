@@ -19,7 +19,7 @@ def main(log_bool = False):
     updateWeightDatabase("lexi")
     
     makeDailyEmail(log_bool)
-    makeWeightChallengeEmail()
+    # makeWeightChallengeEmail()
     
 def makeDailyEmail(log_bool = False):
     b = getBTCprice()
