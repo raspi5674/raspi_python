@@ -4,12 +4,15 @@
 cd ~/raspi_python
 
 # Call the python to generate the text of the email and store it in a temp file
-python3 -c 'import makeDataEmail; print(makeDataEmail.main(True))' > tempMessage.txt
+python3 -c 'import makeDataEmail; makeDataEmail.main(True)'
 
-# Send the email
-cat tempMessage.txt | mail -s "Daily Data" mot5600@yahoo.com -A daily_img.png
+# Send the daily email
+cat dailyMessage.txt | mail -s "Daily Data" mot5600@yahoo.com -A daily_img.png
+
+# Send the weight challenge emails
+
 
 # Remove the temp files and go back to the home directory
-rm tempMessage.txt
-rm daily_img.png
+rm *.txt
+rm *.png
 cd ~

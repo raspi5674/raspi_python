@@ -13,31 +13,60 @@ LOG_FILE = '/home/pi/logging/data_email_log.txt'
 KEYS_FILE = '/home/pi/keys/fitbit_api_keys.json'
 DB_DIR = '/home/pi/sqlite/health.db'
 
-def main(log_bool=False):
+def main(log_bool = False):
     
-    updateWeightDatabase()
+    updateWeightDatabase("tom")
+    updateWeightDatabase("lexi")
     
+    makeDailyEmail(log_bool)
+    makeWeightChallengeEmail()
+    
+def makeDailyEmail(log_bool = False):
     b = getBTCprice()
     a, a2 = get538trumpapprove()
     t, t2 = get10yeartreas()
-    w = getWeightData(os.getcwd())
+    w = getWeightData(os.getcwd(), "tom")
     m = getMoonPhaseMessage()
     
     if m != "":
         m = '\n' + m 
     
-    email = (b + '\n' + 
+    f = open("dailyMessage.txt", "x")
+    f.write(b + '\n' + 
             '538 Trump Approval: ' + a + " (last wk avg: " + a2 + ')\n' + 
             '10 Yr UST Yield: ' + t + " (last yr avg: " + t2 + ')' + '\n' + 
              w + # \n included in m
              m)
+    f.close()
     
     if log_bool:
         email_log = open(LOG_FILE, "a")
         email_log.write('\n' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M') + '\n' + email + '\n')
         email_log.close()
+        
+def makeWeightChallengeEmail():
+    # INPUTS INTO WEIGHT CHALLENGE
+    startDate = datetime.date(2019,4,1)
+    endDate = datetime.date(2019,6,10)
+    people = ["tom", "lexi"]
+    goalweights = [215, 135]
     
-    return email
+    # CALCULATE SOME DAY STUFF
+    curDay = datetime.date.today()
+    totalDays = (endDate - startDate).days
+    dayNum = (curDay - startDate).days + 1
+    daysLeft = (endDate - curDay).days - 1
+    
+    # PULL THE WEIGHT DATA
+    df_tom = readWeightDB("tom")
+    df_lexi = readWeightDB("lexi")
+    
+    f = open("weightLossMessage.txt", "x")
+    f.write("It's day " + dayNum + " of the 10 week challenge, there are " + daysLeft + " days left." + '\n' + 
+            "Tom is on/not on track" + 
+            "Lexi is on/not on track" + 
+            "anything else we want.")
+    f.close()
 
 def getBTCprice():
     try: 
@@ -94,17 +123,42 @@ def getMoonPhaseMessage():
                 14:"Full moon today!"}
     return messages.get(phasenum,"")
 
-def getWeightData(cwd):
+def getWeightData(cwd, name):
     
+    weights_df = readWeightDB(name, 365)
+
+    # Date Goal
+    weights_df["Date_Goal"] = weights_df["mthly_avg"][:]
+    goal_date = datetime.date(2019,10,23) # Oct 23, 2019 (Doctor's Apt)
+    goal_weight = 175
+    t_delta = goal_date - datetime.date.today()
+    days_til_goal = t_delta.days
+    daily_wt_loss = (weights_df["Date_Goal"].values[-30] - goal_weight)/days_til_goal
+    
+    # 1 lb/week goal  TEST THIS CODE
+    weights_df["1lb_wk_goal"] = weights_df["mthly_avg"][:]
+    
+    # Loop through and set goals TEST THIS CODE
+    for i in range(29,0,-1):
+        weights_df["1lb_wk_goal"].values[-i] = weights_df["1lb_wk_goal"].values[-i-1] - 1/7
+        weights_df["Date_Goal"].values[-i] = weights_df["Date_Goal"].values[-i-1] - daily_wt_loss
+    
+    weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
+    weight_message = "30 day mvg avg weight: " + str(weight_avg)
+    
+    weight_img_loc = graphHelper(weights_df, cwd)
+    
+    return weight_message
+
+def readWeightDB(name, interp_days):
     # connect to the database and get last year of weight data
     conn = sqlite3.connect(DB_DIR)
     cur = conn.cursor()
-    interp_days = 365
     
     yearago = datetime.date.today() + datetime.timedelta(days=-interp_days)
     yearago_string = yearago.strftime("%Y-%m-%d")
     
-    cur.execute("SELECT * FROM weight WHERE julianday(date)>=julianday('%s');" % (yearago_string))
+    cur.execute("SELECT * FROM weight WHERE julianday(date)>=julianday('%s') AND name = '%s';" % (yearago_string, name))
     weightdata = cur.fetchall()
     weight_tuple = list(zip(*weightdata))[1]
     cur.close()
@@ -141,29 +195,7 @@ def getWeightData(cwd):
     weights_df["wkly_avg"] = weights_df["weight_interped"].rolling(window=7).mean().round(1)
     weights_df["mthly_avg"] = weights_df["weight_interped"].rolling(window=30).mean().round(1)
     
-    # Date Goal  TEST THIS CODE
-    weights_df["Date_Goal"] = weights_df["mthly_avg"][:]
-    goal_date = datetime.date(2019,10,23) # Oct 23, 2019 (Doctor's Apt)
-    goal_weight = 175
-    t_delta = goal_date - datetime.date.today()
-    days_til_goal = t_delta.days
-    daily_wt_loss = (weights_df["Date_Goal"].values[-30] - goal_weight)/days_til_goal
-    
-    # 1 lb/week goal  TEST THIS CODE
-    weights_df["1lb_wk_goal"] = weights_df["mthly_avg"][:]
-    
-    # Loop through and set goals TEST THIS CODE
-    for i in range(29,0,-1):
-        weights_df["1lb_wk_goal"].values[-i] = weights_df["1lb_wk_goal"].values[-i-1] - 1/7
-        weights_df["Date_Goal"].values[-i] = weights_df["Date_Goal"].values[-i-1] - daily_wt_loss
-    
-    
-    weight_avg = round(sum(weights_df["weight_interped"].tail(30))/30,1)
-    weight_message = "30 day mvg avg weight: " + str(weight_avg)
-    
-    weight_img_loc = graphHelper(weights_df, cwd)
-    
-    return weight_message
+    return weights_df
 
 def graphHelper(df, cwd):
     import matplotlib
@@ -205,16 +237,16 @@ def graphHelper(df, cwd):
     
     return imgloc
 
-def updateWeightDatabase():
+def updateWeightDatabase(name):
     # This code refreshes the access token
-    refresh_err = refreshFitbitTokens(KEYS_FILE)
+    refresh_err = refreshFitbitTokens(KEYS_FILE, name)
     
     # If the refresh failed, return an error message
     if refresh_err: 
         return "Error with weight data."
     
     # Load the updated API information
-    fitbit_api_keys = json.load(open(KEYS_FILE))
+    fitbit_api_keys = json.load(open(KEYS_FILE))[name]
     client_id = fitbit_api_keys['client_id']
     client_secret = fitbit_api_keys['client_secret']
     access_token = fitbit_api_keys['access_token']
@@ -242,10 +274,10 @@ def updateWeightDatabase():
           bf = round(weight_data[i]['fat'],1)
        
        # Update the records if it exists.  If it doesn't then insert it
-       cur.execute("UPDATE weight SET weight=%s, bf_pcnt=%s WHERE date='%s';" % (wt,bf,dt))
-       cur.execute("SELECT * FROM weight WHERE date='%s';" % (dt))
+       cur.execute("UPDATE weight SET weight=%s, bf_pcnt=%s WHERE date='%s' AND name = '%s';" % (wt,bf,dt, name))
+       cur.execute("SELECT * FROM weight WHERE date='%s' AND name='%s';" % (dt, name))
        if len(cur.fetchall()) == 0:
-          cur.execute("INSERT INTO weight VALUES ('%s',%s,%s);" % (dt,wt,bf))
+          cur.execute("INSERT INTO weight VALUES ('%s',%s,%s,'%s');" % (dt,wt,bf,name))
        
        
        # NEW TEST UPSERT CODE
@@ -263,12 +295,12 @@ def updateWeightDatabase():
     cur.close()
     conn.close()
 
-def refreshFitbitTokens(json_keys_file):
+def refreshFitbitTokens(json_keys_file, name):
     # Open the json file with the API keys, and load the data that we need
     fitbit_api_keys = json.load(open(json_keys_file))
-    client_id = fitbit_api_keys['client_id']
-    client_secret = fitbit_api_keys['client_secret']
-    refresh_token = fitbit_api_keys['refresh_token']
+    client_id = fitbit_api_keys[name]['client_id']
+    client_secret = fitbit_api_keys[name]['client_secret']
+    refresh_token = fitbit_api_keys[name]['refresh_token']
     
     # Set up the body of the http request
     TokenURL = 'https://api.fitbit.com/oauth2/token'
@@ -294,9 +326,9 @@ def refreshFitbitTokens(json_keys_file):
         ResponseJSON = json.loads(FullResponse.decode('utf-8'))
         
         # Put the keys into the json file
-        fitbit_api_keys['access_token'] = str(ResponseJSON['access_token'])
-        fitbit_api_keys['refresh_token'] = str(ResponseJSON['refresh_token'])
-        fitbit_api_keys['last-refreshed'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        fitbit_api_keys[name]['access_token'] = str(ResponseJSON['access_token'])
+        fitbit_api_keys[name]['refresh_token'] = str(ResponseJSON['refresh_token'])
+        fitbit_api_keys[name]['last-refreshed'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         
         # Update the actual file 
         with open(KEYS_FILE, 'w') as outfile:
