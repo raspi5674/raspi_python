@@ -60,8 +60,8 @@ def makeWeightChallengeEmail():
     daysLeft = (endDate - curDay).days - 1
     
     # PULL THE WEIGHT DATA
-    df_tom = readWeightDB("tom")
-    df_lexi = readWeightDB("lexi")
+    df_tom = readWeightDB("tom", 365)
+    df_lexi = readWeightDB("lexi", 365)
     
     f = open("weightLossMessage.txt", "x")
     f.write("It's day " + dayNum + " of the 10 week challenge, there are " + daysLeft + " days left." + '\n' + 
