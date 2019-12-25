@@ -131,8 +131,8 @@ def getWeightData(cwd, name):
 
     # Date Goal
     weights_df["Date_Goal"] = weights_df["mthly_avg"][:]
-    goal_date = datetime.date(2019,10,23) # Oct 23, 2019 (Doctor's Apt)
-    goal_weight = 220
+    goal_date = datetime.date(2020,9,10) # Sept 10, 2020 (Month before Rustman's Wedding)
+    goal_weight = 200
     t_delta = goal_date - datetime.date.today()
     days_til_goal = t_delta.days
     daily_wt_loss = (weights_df["Date_Goal"].values[-30] - goal_weight)/days_til_goal
