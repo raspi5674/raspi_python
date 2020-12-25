@@ -1,3 +1,5 @@
+#! /bin/bash
+
 # This code sends the data email
 
 # Get to the repository directory where the python code resides
