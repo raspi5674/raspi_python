@@ -3,7 +3,7 @@
 # This code sends the data email
 
 # Get to the repository directory where the python code resides
-cd ~/raspi_python
+cd ~/raspi_python/python
 
 # Call the python to generate the text of the email and store it in a temp file
 python3 -c 'import makeDataEmail; makeDataEmail.main(True)'
