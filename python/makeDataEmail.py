@@ -115,7 +115,8 @@ def get10yeartreas():
     return str(tenyeartreas) + "%", str(round(yearavg10YT,2)) + "%"
 
 def getMoonPhaseMessage():
-    phasenum = Astral.moon_phase(Astral(),datetime.date.today())
+    ast = Astral()
+    phasenum = ast.moon_phase(datetime.date.today())
     # Moon phase numbers: 
     # 0 = New Moon
     # 7 = First Quarter
