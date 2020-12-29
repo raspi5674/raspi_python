@@ -1,9 +1,12 @@
 # This code written in Python 3
 
+
+import pandas as pd
+import numpy as np
 import json, requests                     # for BTC price
 from pandas.io.json import json_normalize # for BTC price
-import quandl, numpy                      # for treasury yield
-import datetime, pandas as pd             # for 538 Trump approve
+import quandl                             # for treasury yield
+import datetime                           # for 538 Trump approve
 from astral import Astral                 # For moon phase
 import fitbit, urllib, base64, os         # For weight data
 import sqlite3                            # For weight database connection
@@ -85,7 +88,7 @@ def getBTCprice():
         dateparam = "?start=" + monthago + "&end=" + today
         url = requests.get(base_url + dateparam)
         price = json.loads(url.text)
-        data = numpy.transpose(json_normalize(price['bpi']))
+        data = np.transpose(json_normalize(price['bpi']))
         BTCmonthavg = sum(data.values[0:len(data)])/len(data)
         BTCmonthavgformatted = '${:,.2f}'.format(float(BTCmonthavg))
         
@@ -98,13 +101,13 @@ def getBTCprice():
 
 def get538trumpapprove():
     data = pd.read_csv('https://projects.fivethirtyeight.com/trump-approval-data/approval_topline.csv')
-    today = datetime.date.today().strftime('%m%d%Y')
-    data = data[data.subgroup == 'All polls']
-    trumpapprove = data['approve_estimate'].values[0].round(1)
     
-    # moving average
-    mvgavg = data['approve_estimate'].values[0:7]
-    trumpapproveweek = (sum(mvgavg)/len(mvgavg)).round(1)
+    data = data[data["subgroup"] == 'All polls']
+    trumpapprove = data["approve_estimate"].values[0].round(1)
+    
+    
+    mvgavg = data["approve_estimate"].values[0:7]
+    trumpapproveweek = mvgavg.mean().round(1)
     
     return str(trumpapprove) + "%", str(trumpapproveweek) + "%"
 
@@ -124,7 +127,7 @@ def getMoonPhaseMessage():
     # 21 = Last Quarter
     messages = {13:"This waxing gibbous is about to go FULL MOON!",
                 14:"Full moon today!"}
-    return messages.get(phasenum,"")
+    return messages.get(phasenum)
 
 def getWeightData(cwd, name):
     
@@ -188,12 +191,12 @@ def readWeightDB(name, interp_days):
     
     # https://stackoverflow.com/questions/6518811/interpolate-nan-values-in-a-numpy-array
     y = weights_df["weight_interped"].values
-    nans = numpy.isnan(y)
+    nans = np.isnan(y)
     x = lambda z: z.nonzero()[0]
     
     # This next line somehow edits the weights_df["weights_interped"] column
     # I think the y array is somehow a 'view' on the dataframe and it edits the underlying data
-    y[nans]= numpy.interp(x(nans), x(~nans), y[~nans])
+    y[nans]= np.interp(x(nans), x(~nans), y[~nans])
     weights_df["weight_interped"] = weights_df["weight_interped"].round(1)
     weights_df["wkly_avg"] = weights_df["weight_interped"].rolling(window=7).mean().round(1)
     weights_df["mthly_avg"] = weights_df["weight_interped"].rolling(window=30).mean().round(1)
