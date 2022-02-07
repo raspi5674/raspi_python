@@ -349,3 +349,7 @@ def refreshFitbitTokens(json_keys_file, name):
         refresh_err = True
         
     return refresh_err
+
+
+if __name__ == "main":
+    main()
