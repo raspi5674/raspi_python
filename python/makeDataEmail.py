@@ -27,7 +27,7 @@ def main(log_bool = False):
 def makeDailyEmail(log_bool = False):
     b = getBTCprice()
     a, a2 = get538trumpapprove()
-    t, t2 = (1.0, 2.0) #get10yeartreas()
+    t, t2 = (str(1.0), str(2.0)) #get10yeartreas()
     w = getWeightData(os.getcwd(), "tom")
     m = getMoonPhaseMessage()
     
@@ -127,7 +127,12 @@ def getMoonPhaseMessage():
     # 21 = Last Quarter
     messages = {13:"This waxing gibbous is about to go FULL MOON!",
                 14:"Full moon today!"}
-    return messages.get(phasenum)
+    if messages.get(phasenum) == None:
+        msg = ""
+    else: 
+        msg = messages.get(phasenum)
+    
+    return msg
 
 def getWeightData(cwd, name):
     
