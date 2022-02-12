@@ -9,6 +9,7 @@ cd ~/raspi_python/python
 python3 -c 'import makeDataEmail; makeDataEmail.main(True)'
 
 # Send the daily email
+# email configuration found in /etc/ssmtp/ssmtp.conf
 cat dailyMessage.txt | mail -s "Daily Data" mot5600@yahoo.com -A daily_img.png
 
 # Send the weight challenge emails
