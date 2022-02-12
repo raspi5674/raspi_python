@@ -27,7 +27,7 @@ def main(log_bool = False):
 def makeDailyEmail(log_bool = False):
     b = getBTCprice()
     a, a2 = get538trumpapprove()
-    t, t2 = get10yeartreas()
+    t, t2 = (1.0, 2.0) #get10yeartreas()
     w = getWeightData(os.getcwd(), "tom")
     m = getMoonPhaseMessage()
     
