@@ -6,7 +6,7 @@
 cd ~/raspi_python/python
 
 # Call the python to generate the text of the email and store it in a temp file
-python3 -c 'import makeDataEmail; makeDataEmail.main(True)'
+python3 makeDataEmail.py
 
 # Send the daily email
 # email configuration found in /etc/ssmtp/ssmtp.conf
